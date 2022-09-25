@@ -19,6 +19,7 @@ type Product struct {
 
 var ErrProductUnknown = errors.New("no such product exists")
 var ErrProductDuplicate = errors.New("product already exists")
+var ErrProductAlreadyUpToDate = errors.New("product is already up to date")
 
 func GetAll() ([]Product, error){
 	products := make([]Product, 0)
@@ -43,7 +44,7 @@ func GetAll() ([]Product, error){
 }
 
 func AddProduct(prod Product)(int64, error){
-	result, err := connect.Db.Exec("INSERT INTO product (Name,Price,ShortDesc,UserID) VALUES (?,?,?,?)", prod.Name , prod.Price , prod.ShortDesc , prod.UserID)
+	result, err := connect.Db.Exec("INSERT INTO product (Name, Price, ShortDesc, UserID) VALUES (?,?,?,?)", prod.Name , prod.Price , prod.ShortDesc , prod.UserID)
 
 	if err != nil{
 		return 0, fmt.Errorf("error: %v", err)
@@ -52,6 +53,43 @@ func AddProduct(prod Product)(int64, error){
 	if err != nil{
 		return 0, fmt.Errorf("error: %v", err)
 	}
+	return id, nil
+}
+
+func UpdateProduct(id int64, prod Product)(int64, error){
+	product, err := GetProduct(id)
+
+	if err != nil {
+		return 0, err
+	}
+
+	if prod.Name != "" {
+		product.Name = prod.Name
+	}
+
+	if prod.Price > 1 {
+		product.Price = prod.Price 
+	}
+
+	if prod.ShortDesc != "" {
+		product.ShortDesc = prod.ShortDesc
+	}
+
+	result, err := connect.Db.Exec("UPDATE product SET Name = ?, Price = ?, ShortDesc = ? WHERE id = ?", product.Name, product.Price, product.ShortDesc, id)
+
+	if err != nil{
+		return 0, fmt.Errorf("error: %v",err)
+	}
+
+	count,err := result.RowsAffected()
+	if err != nil{
+		return 0, fmt.Errorf("error: %v",err)
+	}
+	
+	if count != 1 {
+		return 0, ErrProductAlreadyUpToDate
+	}
+
 	return id, nil
 }
 

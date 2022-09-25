@@ -45,6 +45,7 @@ func main(){
 	router.GET("/products", panicHandler(productController.GetAllProductHandler))
 	router.POST("/product", panicHandler(productController.CreateProductHandler))
 	router.GET("/product/:productId", panicHandler(productController.GetProductByIdHandler))
+	router.PUT("/product/:productId", panicHandler(productController.UpdateProductByIdHandler))
 	router.DELETE("/product/:productId", panicHandler(productController.DeleteProductByIdHandler))
 
 	router.NotFound = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){

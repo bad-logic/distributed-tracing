@@ -1,0 +1,50 @@
+version: "3"
+
+volumes:
+  products_db:
+
+networks:
+  products_backend_network:
+    name: products_backend_network
+
+services:
+  product-service:
+    container_name: product-service-container
+    image: product-service:v1.0.3
+    build:
+      context: ./products
+      dockerfile: Imagefile
+    networks:
+      - products_backend_network
+    environment:
+      - PORT=8082
+      - DB_HOST=db-products-service
+      - DB_PORT=3306
+      - DB_NAME=products
+      - DB_USERNAME=product
+      - DB_PASSWORD=products@20202
+      - DB_DIALECT=mysql
+      - DB_LOGGING=1
+    ports:
+      - 8082:8082
+    volumes:
+      - ./products:/usr/app/:cached
+
+  db-products-service:
+    image: mysql:8.0.30
+    container_name: products-db-container
+    command:
+      - "--character-set-server=utf8mb4"
+      - "--collation-server=utf8mb4_unicode_ci"
+      - "--skip-character-set-client-handshake"
+    networks:
+      - products_backend_network
+    environment:
+      - MYSQL_ROOT_PASSWORD=products2022
+      - MYSQL_DATABASE=products
+      - MYSQL_USER=product
+      - MYSQL_PASSWORD=products@20202
+    ports:
+      - "3307:3306"
+    volumes:
+      - products_db:/var/lib/mysql:delegated

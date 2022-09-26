@@ -2,10 +2,11 @@ version: "3"
 
 volumes:
   products_db:
+  orders_db:
 
 networks:
-  products_backend_network:
-    name: products_backend_network
+  shop_backend_network:
+    name: shop_backend_network
 
 services:
   product-service:
@@ -15,7 +16,7 @@ services:
       context: ./products
       dockerfile: Imagefile
     networks:
-      - products_backend_network
+      - shop_backend_network
     environment:
       - PORT=8082
       - DB_HOST=db-products-service
@@ -29,6 +30,8 @@ services:
       - 8082:8082
     volumes:
       - ./products:/usr/app/:cached
+    depends_on:
+      - db-products-service
 
   db-products-service:
     image: mysql:8.0.30
@@ -38,7 +41,7 @@ services:
       - "--collation-server=utf8mb4_unicode_ci"
       - "--skip-character-set-client-handshake"
     networks:
-      - products_backend_network
+      - shop_backend_network
     environment:
       - MYSQL_ROOT_PASSWORD=products2022
       - MYSQL_DATABASE=products
@@ -48,3 +51,46 @@ services:
       - "3307:3306"
     volumes:
       - products_db:/var/lib/mysql:delegated
+
+  order-service:
+    container_name: order-service-container
+    image: order-service:v1.0.3
+    build:
+      context: ./orders
+      dockerfile: Imagefile
+    networks:
+      - shop_backend_network
+    environment:
+      - PORT=8083
+      - DB_HOST=db-orders-service
+      - DB_PORT=3306
+      - DB_NAME=orders
+      - DB_USERNAME=order
+      - DB_PASSWORD=orders_20202
+      - DB_DIALECT=mysql
+      - DB_LOGGING=1
+    ports:
+      - 8083:8083
+    volumes:
+      - ./orders/:/usr/app/
+    depends_on:
+      - db-orders-service
+
+  db-orders-service:
+    image: mysql:8.0.30
+    container_name: orders-db-container
+    command:
+      - "--character-set-server=utf8mb4"
+      - "--collation-server=utf8mb4_unicode_ci"
+      - "--skip-character-set-client-handshake"
+    networks:
+      - shop_backend_network
+    environment:
+      - MYSQL_ROOT_PASSWORD=orders2022
+      - MYSQL_DATABASE=orders
+      - MYSQL_USER=order
+      - MYSQL_PASSWORD=orders_20202
+    ports:
+      - "3308:3306"
+    volumes:
+      - orders_db:/var/lib/mysql:delegated

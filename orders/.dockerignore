@@ -1,0 +1,7 @@
+.dockerignore
+Imagefile
+.env3.8
+.mypy_cache
+__pycache__
+*.pyc 
+.vscode

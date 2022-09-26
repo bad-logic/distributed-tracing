@@ -1,0 +1,23 @@
+# -----------> Build Image
+FROM python:latest@sha256:e9c35537103a2801a30b15a77d4a56b35532c964489b125ec1ff24f3d5b53409 as depsInstall
+
+# Install curl
+RUN apt-get update && apt-get install -y --no-install-recommends curl
+
+# Install poetry dependency management tool for python
+RUN curl -sSL https://install.python-poetry.org | python3 - --version 1.2.1
+ENV PATH="/root/.local/bin:$PATH"
+
+RUN poetry config virtualenvs.create false
+
+WORKDIR /usr/app
+
+COPY ["pyproject.toml" , "poetry.lock" , "./"]
+
+# Install dependencies
+RUN  poetry install --no-dev
+
+COPY ./ ./
+
+# # docker entry command
+CMD ["python","src/server.py"]

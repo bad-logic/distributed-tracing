@@ -27,8 +27,8 @@ class OrderTable(Base):
     """Represents a order model for the orders Table."""
 
     __tablename__ = "order"
-    id = Column(Integer, primary_key=True, nullable=False)
+    id = Column(Integer, primary_key=True, nullable=False, autoincrement=True)
     user = Column(Integer, nullable=False)
     product = Column(JSON, nullable=False, default=[])
-    status = Column(SqlColumnEnum(StatusEnum), default=StatusEnum.placed)
+    status = Column(SqlColumnEnum(StatusEnum), default=StatusEnum.placed.value)
     address = Column(String(50), nullable=False)

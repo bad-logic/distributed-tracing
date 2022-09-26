@@ -1,18 +1,22 @@
-from fastapi import APIRouter, Request, Response, Depends
-from sqlalchemy.engine import Engine
-
-from db import DBConnector
+from fastapi import APIRouter, HTTPException, status
 from utils import Logger
 from .order_model import OrderModel
+from .order_controller import OrderController
+import traceback
 
 order_router = APIRouter()
-engine = DBConnector().get_engine()
 
+orderController = OrderController()
 
 logger = Logger().get_logger()
 
 
 @order_router.post("/", status_code=200)
-def create_order(order: OrderModel, engine: Engine = Depends(engine)):
-    print(order)
-    return Response(content={"success": "OK"}, media_type="application/json")
+def create_order(order: OrderModel):
+    try:
+        return orderController.handle_order_creation(order)
+    except Exception:
+        logger.exception(traceback.format_exc())
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR, "Failed to create order"
+        )

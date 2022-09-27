@@ -4,8 +4,6 @@ from .orders import order_router
 
 request_handler = FastAPI(title="Orders Service")
 
-API_PREFIX = '/orders'
-
 connector = DBConnector()
 
 
@@ -19,9 +17,9 @@ def cleanup_operations():
     connector.dispose_connection()
 
 
-request_handler.include_router(order_router, prefix=API_PREFIX + "/order")
+request_handler.include_router(order_router, prefix="/orders/order")
 
 
-@request_handler.get("/source", status_code=200)
-def get_customers_info():
-    return {"message": "from dapper"}
+@request_handler.get("/health", status_code=200)
+def health_check():
+    return "OK"

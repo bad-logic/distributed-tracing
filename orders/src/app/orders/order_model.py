@@ -32,3 +32,6 @@ class OrderTable(Base):
     product = Column(JSON, nullable=False, default=[])
     status = Column(SqlColumnEnum(StatusEnum), default=StatusEnum.placed.value)
     address = Column(String(50), nullable=False)
+
+    def __repr__(self):
+        return f"Order(id={self.id!r}, user={self.user!r}, product={self.product!r}, status={self.status}, address={self.address})"

@@ -1,10 +1,9 @@
-import logging
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from db import DBConnector
-from app import OrderTable
+from app.models import OrderTable
 
 
 from alembic import context

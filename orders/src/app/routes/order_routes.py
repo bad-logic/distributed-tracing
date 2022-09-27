@@ -2,8 +2,8 @@ from typing import List
 import traceback
 from fastapi import APIRouter, HTTPException, status as status_code
 from utils import Logger
-from .order_model import CreateOrderInterface, GetOrderInterface, StatusEnum
-from .order_controller import OrderController
+from ..interfaces import CreateOrderInterface, GetOrderInterface, StatusEnum
+from ..controllers import OrderController
 
 order_router = APIRouter()
 

@@ -7,9 +7,11 @@
 from typing import List
 from fastapi import HTTPException, status as status_code
 from sqlalchemy.orm import sessionmaker, Session
+
 from db import DBConnector
 from utils import Logger
-from .order_model import CreateOrderInterface, GetOrderInterface, OrderTable, StatusEnum
+from ..interfaces import CreateOrderInterface, GetOrderInterface, StatusEnum
+from ..models import OrderTable
 
 connector = DBConnector()
 connector.connect()
@@ -79,9 +81,9 @@ class OrderService:
         """ service to update the product of an order """
         with session_maker() as session:
             order = self.get_order_model_object(order_id, session)
-            if (order.status != StatusEnum.placed.value):
+            if (order.status.value != StatusEnum.ORDER_PLACED.value):
                 raise HTTPException(
-                    status_code.HTTP_403_Forbidden, detail=f"Cannot update product once {order.status}"
+                    status_code.HTTP_403_FORBIDDEN, detail=f"Cannot update product once order status is {order.status.value}"
                 )
             order.product = product
             session.add(order)
@@ -93,9 +95,9 @@ class OrderService:
         """ service to update the address of an order """
         with session_maker() as session:
             order = self.get_order_model_object(order_id, session)
-            if (order.status != StatusEnum.placed.value):
+            if (order.status.value != StatusEnum.ORDER_PLACED.value):
                 raise HTTPException(
-                    status_code.HTTP_403_Forbidden, detail=f"Cannot update address once {order.status}"
+                    status_code.HTTP_403_FORBIDDEN, detail=f"Cannot update address once order status is {order.status.value}"
                 )
             order.address = address
             session.add(order)

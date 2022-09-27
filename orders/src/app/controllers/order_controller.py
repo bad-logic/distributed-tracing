@@ -4,8 +4,8 @@
 
 from typing import List
 from utils import Logger
-from .order_model import CreateOrderInterface, GetOrderInterface, StatusEnum
-from .order_service import OrderService
+from ..interfaces import CreateOrderInterface, GetOrderInterface, StatusEnum
+from ..services import OrderService
 
 
 class OrderController:

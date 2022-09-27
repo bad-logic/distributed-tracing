@@ -1,6 +1,6 @@
 from fastapi import FastAPI, status
 from db import DBConnector
-from .orders import order_router
+from .routes import order_router
 
 request_handler = FastAPI(title="Orders Service", debug=True)
 

@@ -1,0 +1,160 @@
+version: "3"
+
+volumes:
+  products_db:
+  orders_db:
+
+networks:
+  shop_backend_network:
+    name: shop_backend_network
+  kafka_network:
+    name: kafka_network
+
+services:
+  # Kafka related containers
+  zookeeper1:
+    image: confluentinc/cp-zookeeper:7.2.1
+    hostname: zookeeper1
+    container_name: zookeeper1
+    networks:
+      - kafka_network
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_SERVERS: zookeeper1:2888:3888
+
+  kafka1:
+    image: confluentinc/cp-kafka:7.2.1
+    hostname: kafka1
+    container_name: kafka1
+    networks:
+      - kafka_network
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+      - "9999:9999"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka1:19092,EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092,DOCKER://host.docker.internal:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,DOCKER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper1:2181"
+      KAFKA_BROKER_ID: 1
+      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_JMX_PORT: 9999
+      KAFKA_JMX_HOSTNAME: ${DOCKER_HOST_IP:-127.0.0.1}
+      KAFKA_AUTHORIZER_CLASS_NAME: kafka.security.authorizer.AclAuthorizer
+      KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
+    depends_on:
+      - zookeeper1
+
+  # WEB UI for viewing kafka
+  kafka-ui-service:
+    container_name: kafka-ui-service
+    image: quay.io/cloudhut/kowl:v1.4.0
+    volumes:
+      - ./config.yaml:/etc/kowl/config.yaml
+    networks:
+      - kafka_network
+    ports:
+      - "8080:8080"
+    entrypoint: ./kowl --config.filepath=/etc/kowl/config.yaml
+    depends_on:
+      - kafka1
+    restart: on-failure # to make sure it restarts and tries to connect to kafka incase of failure
+
+  product-service:
+    container_name: product-service-container
+    image: product-service:v1.0.3
+    build:
+      context: ../products
+      dockerfile: Imagefile
+    networks:
+      - shop_backend_network
+    environment:
+      - PORT=8082
+      - DB_HOST=db-products-service
+      - DB_PORT=3306
+      - DB_NAME=products
+      - DB_USERNAME=product
+      - DB_PASSWORD=products@20202
+      - DB_DIALECT=mysql
+      - DB_LOGGING=1
+    ports:
+      - 8082:8082
+    volumes:
+      - ../products:/usr/app/:cached
+    depends_on:
+      - db-products-service
+      - zookeeper1
+      - kafka1
+      - kafka-ui-service
+
+  db-products-service:
+    image: mysql:8.0.30
+    container_name: products-db-container
+    command:
+      - "--character-set-server=utf8mb4"
+      - "--collation-server=utf8mb4_unicode_ci"
+      - "--skip-character-set-client-handshake"
+    networks:
+      - shop_backend_network
+    environment:
+      - MYSQL_ROOT_PASSWORD=products2022
+      - MYSQL_DATABASE=products
+      - MYSQL_USER=product
+      - MYSQL_PASSWORD=products@20202
+    ports:
+      - "3307:3306"
+    volumes:
+      - products_db:/var/lib/mysql:delegated
+
+  order-service:
+    container_name: order-service-container
+    image: order-service:v1.0.3
+    build:
+      context: ../orders
+      dockerfile: Imagefile
+    networks:
+      - shop_backend_network
+    environment:
+      - PORT=8083
+      - DB_HOST=db-orders-service
+      - DB_PORT=3306
+      - DB_NAME=orders
+      - DB_USERNAME=order
+      - DB_PASSWORD=orders_20202
+      - DB_DIALECT=mysql
+      - DB_LOGGING=1
+    ports:
+      - 8083:8083
+    volumes:
+      - ../orders/:/usr/app/
+    depends_on:
+      - db-orders-service
+      - zookeeper1
+      - kafka1
+      - kafka-ui-service
+
+  db-orders-service:
+    image: mysql:8.0.30
+    container_name: orders-db-container
+    command:
+      - "--character-set-server=utf8mb4"
+      - "--collation-server=utf8mb4_unicode_ci"
+      - "--skip-character-set-client-handshake"
+    networks:
+      - shop_backend_network
+    environment:
+      - MYSQL_ROOT_PASSWORD=orders2022
+      - MYSQL_DATABASE=orders
+      - MYSQL_USER=order
+      - MYSQL_PASSWORD=orders_20202
+    ports:
+      - "3308:3306"
+    volumes:
+      - orders_db:/var/lib/mysql:delegated

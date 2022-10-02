@@ -53,19 +53,19 @@ services:
       - zookeeper1
 
   # WEB UI for viewing kafka
-  kafka-ui-service:
-    container_name: kafka-ui-service
-    image: quay.io/cloudhut/kowl:v1.4.0
-    volumes:
-      - ./config.yaml:/etc/kowl/config.yaml
-    networks:
-      - kafka_network
-    ports:
-      - "8080:8080"
-    entrypoint: ./kowl --config.filepath=/etc/kowl/config.yaml
-    depends_on:
-      - kafka1
-    restart: on-failure # to make sure it restarts and tries to connect to kafka incase of failure
+  # kafka-ui-service:
+  #   container_name: kafka-ui-service
+  #   image: quay.io/cloudhut/kowl:v1.4.0
+  #   volumes:
+  #     - ./config.yaml:/etc/kowl/config.yaml
+  #   networks:
+  #     - kafka_network
+  #   ports:
+  #     - "8080:8080"
+  #   entrypoint: ./kowl --config.filepath=/etc/kowl/config.yaml
+  #   depends_on:
+  #     - kafka1
+  #   restart: on-failure # to make sure it restarts and tries to connect to kafka incase of failure
 
   product-service:
     container_name: product-service-container
@@ -84,6 +84,8 @@ services:
       - DB_PASSWORD=products@20202
       - DB_DIALECT=mysql
       - DB_LOGGING=1
+      - KAFKA_HOST=kafka1
+      - KAFKA_PORT=9092
     ports:
       - 8082:8082
     volumes:
@@ -92,7 +94,6 @@ services:
       - db-products-service
       - zookeeper1
       - kafka1
-      - kafka-ui-service
 
   db-products-service:
     image: mysql:8.0.30
@@ -138,7 +139,6 @@ services:
       - db-orders-service
       - zookeeper1
       - kafka1
-      - kafka-ui-service
 
   db-orders-service:
     image: mysql:8.0.30

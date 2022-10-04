@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"products/db"
 	"products/controllers/product"
+	"products/kafka/client"
 )
 
 type Message struct{
@@ -31,6 +32,10 @@ func panicHandler(n httprouter.Handle) httprouter.Handle{
 
 func init(){
 	connect.ConnectToDatabase()
+}
+
+func init(){
+	kafkaClient.SetupKafkaConnection()
 }
 
 

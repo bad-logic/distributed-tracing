@@ -1,10 +1,10 @@
-FROM golang:1.19-bullseye 
+FROM golang:1.19-bullseye
 
 RUN go install github.com/cosmtrek/air@latest
 
-ENV GO111MODULE=on 
-ENV CGO_ENABLED=0 
-ENV GOOS=linux 
+ENV GO111MODULE=on
+ENV CGO_ENABLED=0
+ENV GOOS=linux
 ENV GOARCH=amd64
 
 
@@ -19,7 +19,7 @@ RUN go mod download
 COPY . .
 
 ENTRYPOINT [ "air" ]
-# RUN go build -o main ./main.go 
+# RUN go build -o main ./main.go
 
 # CMD ["./main"]
 

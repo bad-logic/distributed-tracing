@@ -8,6 +8,8 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"products/service/product"
 	"products/utils/structs/response"
+	"products/kafka/client"
+	"products/kafka/topics"
 )
 
 
@@ -53,6 +55,13 @@ func CreateProductHandler(w http.ResponseWriter, r *http.Request, _ httprouter.P
 		json.NewEncoder(w).Encode(reply)
 		return
 	}
+
+	// send the created product to kafka
+	product,err := productService.GetProduct(id)
+	if err  != nil{
+		fmt.Println("Error fetching created product:",err)
+	}
+	kafkaClient.ProduceMessage(kafkaTopics.PRODUCT_CREATED,product)
 	json.NewEncoder(w).Encode(response.SuccessResponse {Id:id})
 }
 
@@ -109,6 +118,12 @@ func UpdateProductByIdHandler(w http.ResponseWriter, r *http.Request, p httprout
 		return
 	}
 
+	// send the updated product to kafka
+	product,err := productService.GetProduct(id)
+	if err  != nil{
+		fmt.Println("Error fetching created product:",err)
+	}
+	kafkaClient.ProduceMessage(kafkaTopics.PRODUCT_UPDATED,product)
 	json.NewEncoder(w).Encode(response.SuccessResponse {Id:id})
 }
 
@@ -180,5 +195,11 @@ func DeleteProductByIdHandler(w http.ResponseWriter, r *http.Request, p httprout
 		return
 	}
 
+	// send the deleted product to kafka
+	product,err := productService.GetProduct(id)
+	if err  != nil{
+		fmt.Println("Error fetching created product:",err)
+	}
+	kafkaClient.ProduceMessage(kafkaTopics.PRODUCT_DELETED,product)
 	json.NewEncoder(w).Encode(response.SuccessResponse {Id:id})
 }

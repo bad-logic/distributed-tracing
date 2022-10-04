@@ -18,6 +18,8 @@ alembic revision -m "creating_the_order_table"
 alembic revision --autogenerate -m "creating_the_order_table"
 ```
 
+for auto generate please update the target_metadata array in migrations/env.py
+
 this will generate a migration file inside alembic/versions/
 
 run

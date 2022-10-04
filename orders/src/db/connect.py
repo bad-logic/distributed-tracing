@@ -3,8 +3,6 @@ from sqlalchemy import create_engine
 from utils import Logger, Singleton
 
 
-logger = Logger().get_logger()
-
 DSN_CONSTANT = "{}+mysqlconnector://{}:{}@{}:{}/{}"
 
 
@@ -27,17 +25,18 @@ class DBConnector(metaclass=Singleton):
         self.engine = None
         self.dsn = DSN_CONSTANT.format(
             dialect, user_name, password, host, port, dbname)
+        self.logger = Logger().get_logger()
 
     def connect(self):
         """"create a connection pool with the database"""
         try:
-            logger.debug("Creating a DB engine")
+            self.logger.debug("Creating a DB engine")
             if self.engine is None:
                 self.engine = create_engine(
                     self.dsn, pool_size=100, max_overflow=0)
-            logger.info("Connected to sql server ✔️")
+            self.logger.info("Connected to sql server ✔️")
         except Exception as ex:
-            logger.debug(f"Failed to create a DB engine, {str(ex)}")
+            self.logger.debug(f"Failed to create a DB engine, {str(ex)}")
 
     def get_engine(self):
         """Get the database engine.

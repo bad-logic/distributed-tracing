@@ -9,12 +9,12 @@ import (
 )
 
 type Product struct {
-	ID        		int64       `json:"id,string"`
-	Name      		string    	`json:"name"`
-	Price     		float32    	`json:"price,string"`
-	ShortDesc 		string    	`json:"short_description"`
-	CreatedAt   	time.Time 	`json:"createdAt,string"`
-	UserID			int64 		`json:"userId,string"`
+	Id        		int64       `json:"Id,string"`
+	Name      		string    	`json:"Name"`
+	Price     		float32    	`json:"Price,string"`
+	ShortDesc 		string    	`json:"ShortDesc"`
+	CreatedAt   	time.Time 	`json:"CreatedAt,string"`
+	UserId			int64 		`json:"UserId,string"`
 }
 
 var ErrProductUnknown = errors.New("no such product exists")
@@ -32,7 +32,7 @@ func GetAll() ([]Product, error){
 
     for rows.Next() {
         var product Product
-        if err := rows.Scan(&product.ID, &product.Name, &product.ShortDesc, &product.Price, &product.CreatedAt, &product.UserID); err != nil {
+        if err := rows.Scan(&product.Id, &product.Name, &product.ShortDesc, &product.Price, &product.CreatedAt, &product.UserId); err != nil {
             return nil, fmt.Errorf("products error: %v", err)
         }
 		products = append(products,product)
@@ -43,8 +43,20 @@ func GetAll() ([]Product, error){
 	return products,nil
 }
 
+func GetProduct(id int64) (Product, error){
+	var product Product
+	row := connect.Db.QueryRow("SELECT * FROM product WHERE id = ?",id)
+	if err := row.Scan(&product.Id, &product.Name, &product.ShortDesc, &product.Price, &product.CreatedAt, &product.UserId); err != nil {
+		if err == sql.ErrNoRows{
+			return product, ErrProductUnknown
+		}
+		return product, fmt.Errorf("error: %v",err)
+	}
+	return product, nil
+}
+
 func AddProduct(prod Product)(int64, error){
-	result, err := connect.Db.Exec("INSERT INTO product (Name, Price, ShortDesc, UserID) VALUES (?,?,?,?)", prod.Name , prod.Price , prod.ShortDesc , prod.UserID)
+	result, err := connect.Db.Exec("INSERT INTO product (Name, Price, ShortDesc, UserID) VALUES (?,?,?,?)", prod.Name , prod.Price , prod.ShortDesc , prod.UserId)
 
 	if err != nil{
 		return 0, fmt.Errorf("error: %v", err)
@@ -93,21 +105,8 @@ func UpdateProduct(id int64, prod Product)(int64, error){
 	return id, nil
 }
 
-
-func GetProduct(id int64) (Product, error){
-	var product Product
-	row := connect.Db.QueryRow("SELECT * FROM product WHERE id = ?",id)
-	if err := row.Scan(&product.ID, &product.Name, &product.ShortDesc, &product.Price, &product.CreatedAt, &product.UserID); err != nil {
-		if err == sql.ErrNoRows{
-			return product, ErrProductUnknown
-		}
-		return product, fmt.Errorf("error: %v",err)
-	}
-	return product, nil
-}
-
 func DeleteProduct(id int64) (int64, error){
-	result, err := connect.Db.Exec("DELETE FROM product WHERE ID = ?",id)
+	result, err := connect.Db.Exec("DELETE FROM product WHERE Id = ?",id)
 
 	if err != nil{
 		return 0, fmt.Errorf("error: %v",err)

@@ -16,13 +16,13 @@ func initialDatabaseTableSetup(){
 		ConnectToDatabase()
 	}
 
-	_ , err := Db.Exec("CREATE TABLE IF NOT EXISTS product(ID INT NOT NULL AUTO_INCREMENT,Name VARCHAR(128) NOT NULL,ShortDesc VARCHAR(128),Price FLOAT NOT NULL,CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,UserID INT NOT NULL,PRIMARY KEY (`ID`))");
+	_ , err := Db.Exec("CREATE TABLE IF NOT EXISTS product(Id INT NOT NULL AUTO_INCREMENT,Name VARCHAR(128) NOT NULL,ShortDesc VARCHAR(128),Price FLOAT NOT NULL,CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,UserId INT NOT NULL,PRIMARY KEY (`Id`))");
 
 	if err != nil{
 		fmt.Println("err creating product table")
 	}
 
-	_ , err1 := Db.Exec("CREATE TABLE IF NOT EXISTS user(ID INT  NOT NULL,FirstName VARCHAR(128) NOT NULL,LastName VARCHAR(128) NOT NULL,Email VARCHAR(128) NOT NULL,UNIQUE (Email),PRIMARY KEY (`ID`))")
+	_ , err1 := Db.Exec("CREATE TABLE IF NOT EXISTS user(Id INT  NOT NULL,FirstName VARCHAR(128) NOT NULL,LastName VARCHAR(128) NOT NULL,Email VARCHAR(128) NOT NULL,UNIQUE (Email),PRIMARY KEY (`Id`))")
 
 	if err1 != nil{
 		fmt.Println("err creating user table")

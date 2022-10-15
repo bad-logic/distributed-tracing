@@ -1,20 +1,14 @@
 consumers:
   topics:
-    - topic: product.Created
+    - topic: productService.productCreated
       listeners:
         - host: order-service
           path: /consumers/product/created
-    - topic: product.Updated
+    - topic: productService.productUpdated
       listeners:
         - host: order-service
           path: /consumers/product/updated
-    - topic: product.Deleted
+    - topic: productService.productDeleted
       listeners:
         - host: order-service
           path: /consumers/product/deleted
-    - topic: user.Created
-      listeners:
-        - host: order-service
-          path: /consumers/user/created
-        - host: product-service
-          path: /consumers/user/created

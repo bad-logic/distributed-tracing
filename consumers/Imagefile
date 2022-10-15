@@ -1,0 +1,37 @@
+# FROM conanio/clang14-ubuntu16.04 AS FirstPhase
+FROM conanio/gcc11-ubuntu16.04 AS BuilderStage
+
+WORKDIR /usr/app
+
+COPY conanfile.txt .
+
+# install dependencies
+RUN conan install . --build=missing
+
+# copy required files
+COPY CMakeLists.txt .
+COPY entry.sh .
+COPY ./src ./src
+COPY ./configs ./configs
+RUN cmake . -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release
+RUN cmake --build . 
+# the above command will spit out executable in bin folder
+# name of the executable is defined inside CMakeLists.txt
+CMD ["./bin/consumer"]
+
+
+
+# FROM alpine:3.16.2
+
+# WORKDIR /usr/app 
+
+# COPY --from=BuilderStage /usr/app/configs ./configs
+# COPY --from=BuilderStage /usr/app/bin ./bin
+# COPY --from=BuilderStage /usr/app/entry.sh ./entry.sh
+
+# RUN chmod +x ./entry.sh
+
+# ENTRYPOINT [ "./entry.sh" ]
+# RUN chmod +x ./bin/consumer
+
+# CMD ["./bin/consumer"]

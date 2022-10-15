@@ -1,7 +1,10 @@
+#pragma once
+
 #include <iostream>
 #include <fstream>
 #include <filesystem>
 #include <vector>
+
 #include <yaml-cpp/yaml.h>
 
 // struct listeners
@@ -33,7 +36,6 @@ std::map<std::string, std::vector<std::string>> getKafkaTopicAndItsListeners()
             }
             kafka_configs[topic] = listeners;
         }
-        std::cout << "consumers->topics: " << kafka_configs << std::endl;
     }
     catch (std::exception &e)
     {

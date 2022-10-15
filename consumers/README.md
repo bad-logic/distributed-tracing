@@ -23,7 +23,11 @@ cmake <path_to_cmakefile> -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release
 cmake --build <path_to_cmakefile>
 ```
 
-3. executable file is emitted to bin/ folder which can be executed
+3. executable file is emitted to `bin/` folder which can be executed as
+
+```
+./bin/<executable_file_name>
+```
 
 other times if you made changes to code then just run the following
 
@@ -31,4 +35,4 @@ other times if you made changes to code then just run the following
 cmake --build <path_to_cmakefile>
 ```
 
-and run the executable file emitted in the bin/ directory
+and run the executable file emitted in the `bin/` directory as `./bin/<executable_file_name>`

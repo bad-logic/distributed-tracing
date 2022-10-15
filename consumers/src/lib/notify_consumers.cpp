@@ -1,15 +1,30 @@
+#pragma once
+
 #include <iostream>
+
 #include <cppkafka/cppkafka.h>
 
-void ListenToKafkaTopicsAndNotifyTheConsumers(std::map<std::string, std::vector<std::string>> consumers, char *kafka_brokers)
+void ListenToKafkaTopicsAndNotifyTheConsumers(std::map<std::string, std::vector<std::string>> consumers, std::string kafka_brokers)
 {
-    std::count << "KAFKA_BROKERS" << kafka_brokers;
+    std::cout << "KAFKA_BROKERS: " << kafka_brokers << std::endl;
+    std::vector<std::string> topics;
+    // get the topics from the map where all the keys are the topics that we need to listen to.
+    for (auto it = consumers.begin(); it != consumers.end(); it++)
+    {
+        topics.push_back(it->first);
+    }
+
+    std::cout << "Listening to below topics... " << std::endl;
+    for (const auto &topic : topics)
+    {
+        std::cout << topic << std::endl;
+    }
 
     cppkafka::Configuration config = {
-        {"metadata.broker.list", kafka_broker}, {"group.id", "global_consumer"}, {"enable.auto.commit", false}};
+        {"metadata.broker.list", kafka_brokers}, {"group.id", "global_consumer"}, {"enable.auto.commit", false}};
 
     cppkafka::Consumer consumer(config);
-    consumer.subscribe({"productService.productCreated"});
+    consumer.subscribe({topics});
 
     // Print the assigned partitions on assignment
     consumer.set_assignment_callback([](const cppkafka::TopicPartitionList &partitions)

@@ -1,6 +1,6 @@
 from fastapi import FastAPI, status
 from db import DBConnector
-from .routes import order_router
+from .routes import order_router, consumer_router
 
 request_handler = FastAPI(title="Orders Service", debug=True)
 
@@ -20,6 +20,8 @@ def cleanup_operations():
 
 
 request_handler.include_router(order_router, prefix="/orders/order")
+request_handler.include_router(
+    consumer_router, prefix="/orders/consume")
 
 
 @request_handler.get("/health", status_code=status.HTTP_200_OK)

@@ -19,10 +19,10 @@ def create_order(order: CreateOrderInterface):
         return orderController.handle_order_creation(order)
     except HTTPException:
         raise
-    except Exception as general:
+    except Exception as ex:
         raise HTTPException(
             status_code.HTTP_500_INTERNAL_SERVER_ERROR, "Failed to create order"
-        ) from general
+        ) from ex
 
 
 @order_router.get("/", status_code=status_code.HTTP_200_OK, response_model=List[GetOrderInterface])

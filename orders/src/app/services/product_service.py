@@ -42,7 +42,6 @@ class ProductService:
             )
             session.add(new_product)
             session.commit()
-            session.refresh(new_product, attribute_names=["id"])
             new_product = new_product.dict()
         return new_product
 

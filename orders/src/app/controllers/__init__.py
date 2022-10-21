@@ -1,1 +1,2 @@
 from .order_controller import OrderController
+from .product_consumer_controller import ProductConsumerController

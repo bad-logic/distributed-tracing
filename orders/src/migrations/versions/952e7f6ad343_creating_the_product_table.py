@@ -21,10 +21,10 @@ def upgrade() -> None:
     op.create_table('product',
                     sa.Column('Id', sa.Integer(), nullable=False),
                     sa.Column('UserId', sa.Integer(), nullable=False),
-                    sa.Column('Name', sa.String(length=50), nullable=False),
-                    sa.Column('Price', sa.Integer(), nullable=False),
+                    sa.Column('Name', sa.String(length=128), nullable=False),
+                    sa.Column('Price', sa.Float(), nullable=False),
                     sa.Column('ShortDesc', sa.String(
-                        length=50), nullable=True),
+                        length=128), nullable=True),
                     sa.Column('CreatedAt', sa.TIMESTAMP(), nullable=False),
                     sa.Column('UpdatedAt', sa.TIMESTAMP(), nullable=False),
                     sa.PrimaryKeyConstraint('Id')

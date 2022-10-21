@@ -1,6 +1,7 @@
 [requires]
 yaml-cpp/0.7.0
 cppkafka/0.4.0
+cpr/1.9.0
 
 [generators]
 cmake

@@ -106,21 +106,27 @@ func UpdateProduct(id int64, prod Product)(int64, error){
 	return id, nil
 }
 
-func DeleteProduct(id int64) (int64, error){
+func DeleteProduct(id int64) (Product, error){
+	product, err := GetProduct(id);
+
+	if err != nil{
+		return product, err;
+	}
+
 	result, err := connect.Db.Exec("DELETE FROM product WHERE Id = ?",id)
 
 	if err != nil{
-		return 0, fmt.Errorf("error: %v",err)
+		return product, fmt.Errorf("error: %v",err)
 	}
 
 	count,err := result.RowsAffected()
 	if err != nil{
-		return 0, fmt.Errorf("error: %v",err)
+		return product, fmt.Errorf("error: %v",err)
 	}
 	
 	if count != 1 {
-		return 0, ErrProductUnknown
+		return product, ErrProductUnknown
 	}
 
-	return id, nil
+	return product, nil
 }

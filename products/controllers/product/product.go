@@ -177,7 +177,7 @@ func DeleteProductByIdHandler(w http.ResponseWriter, r *http.Request, p httprout
 		return
 	}
 
-	id,err := productService.DeleteProduct(ID)
+	product,err := productService.DeleteProduct(ID)
 
 	if err == productService.ErrProductUnknown {
 		fmt.Println("Error :",err)
@@ -195,11 +195,6 @@ func DeleteProductByIdHandler(w http.ResponseWriter, r *http.Request, p httprout
 		return
 	}
 
-	// send the deleted product to kafka
-	product,err := productService.GetProduct(id)
-	if err  != nil{
-		fmt.Println("Error fetching created product:",err)
-	}
 	kafkaClient.ProduceMessage(kafkaTopics.PRODUCT_DELETED,product)
-	json.NewEncoder(w).Encode(response.SuccessResponse {Id:id})
+	json.NewEncoder(w).Encode(response.SuccessResponse {Id:product.Id})
 }

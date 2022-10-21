@@ -14,6 +14,7 @@ type Product struct {
 	Price     		float32    	`json:"Price,string"`
 	ShortDesc 		string    	`json:"ShortDesc"`
 	CreatedAt   	time.Time 	`json:"CreatedAt,string"`
+	UpdatedAt   	time.Time 	`json:"UpdatedAt,string"`
 	UserId			int64 		`json:"UserId,string"`
 }
 
@@ -32,7 +33,7 @@ func GetAll() ([]Product, error){
 
     for rows.Next() {
         var product Product
-        if err := rows.Scan(&product.Id, &product.Name, &product.ShortDesc, &product.Price, &product.CreatedAt, &product.UserId); err != nil {
+        if err := rows.Scan(&product.Id, &product.Name, &product.ShortDesc, &product.Price, &product.CreatedAt, &product.UpdatedAt, &product.UserId); err != nil {
             return nil, fmt.Errorf("products error: %v", err)
         }
 		products = append(products,product)
@@ -46,7 +47,7 @@ func GetAll() ([]Product, error){
 func GetProduct(id int64) (Product, error){
 	var product Product
 	row := connect.Db.QueryRow("SELECT * FROM product WHERE id = ?",id)
-	if err := row.Scan(&product.Id, &product.Name, &product.ShortDesc, &product.Price, &product.CreatedAt, &product.UserId); err != nil {
+	if err := row.Scan(&product.Id, &product.Name, &product.ShortDesc, &product.Price, &product.CreatedAt, &product.UpdatedAt, &product.UserId); err != nil {
 		if err == sql.ErrNoRows{
 			return product, ErrProductUnknown
 		}
@@ -79,7 +80,7 @@ func UpdateProduct(id int64, prod Product)(int64, error){
 		product.Name = prod.Name
 	}
 
-	if prod.Price > 1 {
+	if prod.Price > 0 {
 		product.Price = prod.Price 
 	}
 

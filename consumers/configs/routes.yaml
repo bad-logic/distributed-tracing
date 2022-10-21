@@ -2,13 +2,13 @@ consumers:
   topics:
     - topic: productService.productCreated
       listeners:
-        - host: order-service
-          path: /consumers/product/created
+        - host: order-service:8083
+          path: orders/consume/product/created
     - topic: productService.productUpdated
       listeners:
-        - host: order-service
-          path: /consumers/product/updated
+        - host: order-service:8083
+          path: orders/consume/product/updated
     - topic: productService.productDeleted
       listeners:
-        - host: order-service
-          path: /consumers/product/deleted
+        - host: order-service:8083
+          path: orders/consume/product/deleted

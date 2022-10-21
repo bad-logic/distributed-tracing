@@ -1,4 +1,3 @@
-# FROM conanio/clang14-ubuntu16.04 AS FirstPhase
 FROM conanio/gcc11-ubuntu16.04 AS BuilderStage
 
 WORKDIR /usr/app

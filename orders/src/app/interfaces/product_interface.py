@@ -7,7 +7,7 @@ class GeneralProductInterface(BaseModel):
     Id: int
     UserId: int
     Name: str
-    Price: int
+    Price: float
     ShortDesc: str
     CreatedAt: datetime
     UpdatedAt: datetime

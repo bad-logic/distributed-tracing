@@ -44,5 +44,5 @@ func ProduceMessage(topic kafkaTopics.Topics, data productService.Product){
         fmt.Println("kafka send msg failed: ", err)
         return
     }
-    fmt.Printf("pid:%v offset:%v\n", pid, offset)
+    fmt.Printf("[+] Produced Message on topic:%s with pid:%v, offset:%v\n",topic, pid, offset)
 }

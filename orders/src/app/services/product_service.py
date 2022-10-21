@@ -56,7 +56,7 @@ class ProductService:
     def get_product_model_object(self, product_id: int, session: Session) -> GeneralProductInterface:
         """ service to fetch an sqlalchemy product object """
         order = session.query(ProductTable).filter(
-            ProductTable.id == product_id).first()
+            ProductTable.Id == product_id).first()
         if order is None:
             raise HTTPException(
                 status_code=status_code.HTTP_404_NOT_FOUND, detail=f"order with ID {product_id} not found")

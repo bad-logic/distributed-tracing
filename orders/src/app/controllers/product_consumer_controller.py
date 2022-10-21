@@ -23,7 +23,7 @@ class ProductConsumerController:
 
     def handle_product_update(self, product: GeneralProductInterface) -> GeneralProductInterface:
         """ controller to update product """
-        return self.product_service.update_product(product_id=product.Id, product=product)
+        return self.product_service.update_product(product_id=product.Id, update_product=product)
 
     def handle_product_delete(self, product: GeneralProductInterface) -> str:
         """ controller to delete a product """

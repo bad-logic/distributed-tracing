@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include <cppkafka/cppkafka.h>
+#include <cpr/cpr.h>
 
 void ListenToKafkaTopicsAndNotifyTheConsumers(std::map<std::string, std::vector<std::string>> consumers, std::string kafka_brokers)
 {
@@ -51,20 +52,29 @@ void ListenToKafkaTopicsAndNotifyTheConsumers(std::map<std::string, std::vector<
             // of those cases, as it's not really an error
             if (!message.is_eof())
             {
-                std::cout << "[+] Received error notification: " << message.get_error() << std::endl;
+                std::cout << "[+] Received error notification on topic -> " << message.get_topic() << " : " << message.get_error() << std::endl;
             }
+            continue;
         }
 
-        // checking if the message has a key
-        if (message.get_key())
-        {
-            std::cout << message.get_key() << " -> ";
-        }
-
-        std::cout << "[+] Received message on partition " << message.get_topic() << "/"
+        std::cout << "[+] Received message with key " << message.get_key() << " , topic -> " << message.get_topic() << " on Partition "
                   << message.get_partition() << ", offset " << message.get_offset() << ", with payload -> " << message.get_payload() << std::endl;
 
-        // Now commit the message
-        // consumer.commit(message);
+        std::string topic = message.get_topic();
+        std::vector<std::string> hosts = consumers[topic];
+
+        for (int i = 0; i < hosts.size(); i++)
+        {
+            std::cout << "[+] Sending data to" << hosts[i] << " ..." << std::endl;
+            cpr::Response response = cpr::Post(cpr::Url{hosts[i]},
+                                               cpr::Body{std::string(message.get_payload())},
+                                               cpr::Header{{"Content-Type", "application/json"}});
+            if (response.status_code == 200)
+            {
+                std::cout << "✔️  Data Sent Successfully !!!" << std::endl;
+                // Now commit the message
+                consumer.commit(message);
+            }
+        }
     }
 }

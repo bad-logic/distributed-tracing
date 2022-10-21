@@ -7,11 +7,6 @@
 
 #include <yaml-cpp/yaml.h>
 
-// struct listeners
-// {
-//     std::vector<std::string> listeners;
-// };
-
 std::map<std::string, std::vector<std::string>> getKafkaTopicAndItsListeners()
 {
 
@@ -31,7 +26,7 @@ std::map<std::string, std::vector<std::string>> getKafkaTopicAndItsListeners()
             std::string topic = n["topic"].as<std::string>();
             for (const auto &l : n["listeners"])
             {
-                std::string callback = l["host"].as<std::string>() + l["path"].as<std::string>();
+                std::string callback = l["host"].as<std::string>() + "/" + l["path"].as<std::string>();
                 listeners.push_back(callback);
             }
             kafka_configs[topic] = listeners;

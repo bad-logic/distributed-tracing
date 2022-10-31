@@ -1,0 +1,4 @@
+# making sure the end of line is lf in all os for the below files
+
+*.sh        text eol=lf
+*.conf      text eol=lf

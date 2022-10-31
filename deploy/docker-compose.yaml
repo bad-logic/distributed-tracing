@@ -10,6 +10,9 @@ networks:
   kafka_network:
     name: kafka_network
     external: true
+  ext_log_network:
+    name: external_logs_network
+    external: true
 
 services:
   product-service:
@@ -21,6 +24,7 @@ services:
     networks:
       - shop_backend_network
       - kafka_network
+      - ext_log_network
     environment:
       - PORT=8082
       - DB_HOST=db-products-service
@@ -31,6 +35,7 @@ services:
       - DB_DIALECT=mysql
       - DB_LOGGING=1
       - KAFKA_BROKERS=kafka1:9092
+      - LOG_COLLECTOR_ENDPOINT=otel_collector_service:4317
     ports:
       - 8082:8082
     volumes:
@@ -66,6 +71,7 @@ services:
     networks:
       - shop_backend_network
       - kafka_network
+      - ext_log_network
     environment:
       - PORT=8083
       - DB_HOST=db-orders-service
@@ -76,6 +82,7 @@ services:
       - DB_DIALECT=mysql
       - DB_LOGGING=1
       - KAFKA_BROKERS=kafka1:9092
+      - LOG_COLLECTOR_ENDPOINT=otel_collector_service:4317
     ports:
       - 8083:8083
     volumes:
@@ -111,7 +118,43 @@ services:
     networks:
       - shop_backend_network
       - kafka_network
+      - ext_log_network
     environment:
       - KAFKA_BROKERS=kafka1:9092
-    # volumes:
-    #   - ../consumers/src:/usr/app/src
+      - LOG_COLLECTOR_ENDPOINT=otel_collector_service:4318
+    volumes:
+      - ../consumers/src:/usr/app/src
+
+  # auth-service:
+  #   container_name: auth-service-container
+  #   image: auth-service:v1.0.3
+  #   build:
+  #     context: ./auth
+  #     dockerfile: Imagefile
+  #   networks:
+  #     - shop_backend_network
+  #   environment:
+  #     - PORT=8081
+  #   ports:
+  #     - 8081:8081
+  #   volumes:
+  #     - ./auth/src:/usr/app/src:cached
+
+  # node-dapr-service:
+  #   container_name: node-dapr-container
+  #   image: "daprio/daprd:edge"
+  #   command:
+  #     [
+  #       "./daprd",
+  #       "--dapr-http-port",
+  #       "3500",
+  #       "--app-id",
+  #       "node-app",
+  #       "--app-port",
+  #       "8081",
+  #       "--log-level",
+  #       "debug",
+  #     ]
+  #   network_mode: "service:node-app"
+  #   volumes:
+  #     - "./dapr/node-components/:/components"

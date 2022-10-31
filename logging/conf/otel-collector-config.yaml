@@ -1,0 +1,58 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+
+processors:
+  batch:
+
+exporters:
+  zipkin:
+    endpoint: "http://zipkin_service:9411/api/v2/spans"
+    format: proto
+
+  jaeger:
+    endpoint: "jaeger_service:14250"
+    tls:
+      insecure: true
+
+  logging:
+
+extensions:
+  health_check:
+  pprof:
+  zpages:
+
+service:
+  extensions:
+    - pprof
+    - zpages
+    - health_check
+  pipelines:
+    traces:
+      receivers:
+        - otlp
+      processors:
+        - batch
+      exporters:
+        - zipkin
+        - jaeger
+    # logs:
+    #   receivers:
+    #     - otlp
+    #   processors:
+    #     - batch
+    #   exporters:
+    #     - logging
+    #     - zipkin
+    #     - jaeger
+    # metrics:
+    #   receivers:
+    #     - otlp
+    #   processors:
+    #     - batch
+    #   exporters:
+    #     - logging
+    #     - zipkin
+    #     - jaeger

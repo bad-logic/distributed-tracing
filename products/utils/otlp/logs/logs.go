@@ -22,6 +22,8 @@ type OtlpErrorOption struct {
 }
 
 func Log(span trace.Span, message string){
+	fmt.Println(message)
+
 	span.AddEvent("log",trace.WithAttributes(
 		attribute.String("severity", "info"),
 		attribute.String("message", message),

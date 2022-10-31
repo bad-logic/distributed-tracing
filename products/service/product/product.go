@@ -130,3 +130,4 @@ func DeleteProduct(id int64) (Product, error){
 
 	return product, nil
 }
+

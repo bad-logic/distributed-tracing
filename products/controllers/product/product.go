@@ -6,26 +6,48 @@ import (
 	"encoding/json"
 	"net/http"
 	"github.com/julienschmidt/httprouter"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/trace"
+	"go.opentelemetry.io/otel/attribute"
 	"products/service/product"
-	"products/utils/structs/response"
+	"products/utils/struct"
 	"products/kafka/client"
 	"products/kafka/topics"
+	"products/utils/telemetry"
 )
 
 
 func GetAllProductHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	// creating a new span for the same trace-id 
+	_, span := otel.Tracer(telementaryUtils.SERVICE_NAME).Start(r.Context(), "ProductController.GetAllProductHandler")
+	defer span.End()
+
 	var reply response.ErrorResponse
 	w.Header().Set("Content-Type", "application/json")
 	
 	products, err := productService.GetAll()
-
+	
 	if err != nil{
-		fmt.Println("Error :",err)
+		fmt.Println("Error:",err)
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+
+		span.AddEvent("log",trace.WithAttributes(
+			attribute.String("log.severity", "info"),
+			attribute.String("log.message","Something went wrong."),
+			attribute.Int("log.status",http.StatusInternalServerError),
+		))
+
 		w.WriteHeader(http.StatusInternalServerError)
 		reply.Message ="Something went wrong."
 		json.NewEncoder(w).Encode(reply)
 		return
 	}
+	span.AddEvent("log",trace.WithAttributes(
+		attribute.String("log.severity", "info"),
+		attribute.String("log.message", "products fetched successfully"),
+	))
 	json.NewEncoder(w).Encode(products)
 }
 
@@ -74,7 +96,7 @@ func UpdateProductByIdHandler(w http.ResponseWriter, r *http.Request, p httprout
 	if err != nil {
 		fmt.Println("Error :",err)
 		w.WriteHeader(http.StatusBadRequest)
-		reply.Message =fmt.Sprintf("%s is not a valid product ID, it must be a number.", p.ByName("productId"))
+		reply.Message = fmt.Sprintf("%s is not a valid product ID, it must be a number.", p.ByName("productId"))
 		json.NewEncoder(w).Encode(reply)
 		return
 	}

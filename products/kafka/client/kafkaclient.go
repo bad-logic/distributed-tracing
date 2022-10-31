@@ -28,11 +28,10 @@ func SetupKafkaConnection(){
 	}
 }
 
-func ProduceMessage(topic kafkaTopics.Topics, data productService.Product){
+func ProduceMessage(topic kafkaTopics.Topics, data productService.Product) (string, error){
 	product,err := json.Marshal(data)
 	if err != nil{
-		fmt.Println("kafka send msg failed: ", err)
-        return
+        return "", fmt.Errorf("kafka send msg failed: %v",err)
 	}
 	msg := &sarama.ProducerMessage{
 		Topic: fmt.Sprintf("%v",topic),
@@ -41,8 +40,8 @@ func ProduceMessage(topic kafkaTopics.Topics, data productService.Product){
 
 	pid, offset, err := kafkaProducer.SendMessage(msg)
     if err != nil {
-        fmt.Println("kafka send msg failed: ", err)
-        return
+        return "", fmt.Errorf("kafka send msg failed: %v",err)
     }
-    fmt.Printf("[+] Produced Message on topic:%s with pid:%v, offset:%v\n",topic, pid, offset)
+	
+	return fmt.Sprintf("Produced Message on topic:%s with pid:%v, offset:%v",topic, pid, offset), nil
 }

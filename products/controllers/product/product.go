@@ -7,13 +7,9 @@ import (
 	"net/http"
 	"github.com/julienschmidt/httprouter"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/codes"
-	"go.opentelemetry.io/otel/trace"
-	"go.opentelemetry.io/otel/attribute"
 	"products/service/product"
+	productMessages "products/service/message/product"
 	"products/utils/struct"
-	"products/kafka/client"
-	"products/kafka/topics"
 	"products/utils/otlp/telemetry"
 	"products/utils/otlp/logs"
 )
@@ -38,14 +34,14 @@ func GetAllProductHandler(w http.ResponseWriter, r *http.Request, _ httprouter.P
 		return
 	}
 
-	logs.Log(span, "product fetched successfully")
+	logs.Log(span, "products fetched successfully")
 	
 	json.NewEncoder(w).Encode(products)
 }
 
 
 func CreateProductHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	_, span := otel.Tracer(telementaryUtils.SERVICE_NAME).Start(r.Context(), "ProductController.CreateProductHandler")
+	newCtx, span := otel.Tracer(telementaryUtils.SERVICE_NAME).Start(r.Context(), "ProductController.CreateProductHandler")
 	defer span.End()
 
 	var reply response.ErrorResponse
@@ -57,16 +53,8 @@ func CreateProductHandler(w http.ResponseWriter, r *http.Request, _ httprouter.P
 	err := decoder.Decode(&newProduct)
 
 	if err != nil {
-		fmt.Println("Error :",err)
+		logs.Error(span,err,logs.OtlpErrorOption{"critical",fmt.Sprintf("response ended with %v status code",http.StatusBadRequest)});
 
-		span.RecordError(err)
-		span.SetStatus(codes.Error, err.Error())
-
-		span.AddEvent("log",trace.WithAttributes(
-			attribute.String("log.severity", "info"),
-			attribute.String("log.message","Something went wrong."),
-			attribute.Int("log.status",http.StatusInternalServerError),
-		))
 		w.WriteHeader(http.StatusBadRequest)
 		reply.Message = "Bad Product"
 		json.NewEncoder(w).Encode(reply)
@@ -75,30 +63,32 @@ func CreateProductHandler(w http.ResponseWriter, r *http.Request, _ httprouter.P
 	id, err := productService.AddProduct(newProduct)
 
 	if err != nil{
-		fmt.Println("Error :",err)
+		logs.Error(span,err,logs.OtlpErrorOption{"critical",fmt.Sprintf("response ended with %v status code",http.StatusInternalServerError)});
+
 		w.WriteHeader(http.StatusInternalServerError)
 		reply.Message = "Something went wrong."
 		json.NewEncoder(w).Encode(reply)
 		return
 	}
 
-	// send the created product to kafka
-	product,err := productService.GetProduct(id)
-	if err  != nil{
-		fmt.Println("Error fetching created product:",err)
-	}
-	kafkaClient.ProduceMessage(kafkaTopics.PRODUCT_CREATED,product)
+	logs.Log(span, fmt.Sprintf("product %d created successfully",id))
+	
+	productMessages.ProduceProductCreatedMessage(newCtx,id)
 	json.NewEncoder(w).Encode(response.SuccessResponse {Id:id})
 }
 
 func UpdateProductByIdHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	newCtx, span := otel.Tracer(telementaryUtils.SERVICE_NAME).Start(r.Context(), "ProductController.UpdateProductByIdHandler")
+	defer span.End()
+
 	var reply response.ErrorResponse
 	w.Header().Set("Content-Type", "application/json")
 
 	id, err := strconv.ParseInt(p.ByName("productId"),10,64)
 
 	if err != nil {
-		fmt.Println("Error :",err)
+		logs.Error(span,err,logs.OtlpErrorOption{"warn",fmt.Sprintf("response ended with %v status code",http.StatusBadRequest)});
+
 		w.WriteHeader(http.StatusBadRequest)
 		reply.Message = fmt.Sprintf("%s is not a valid product ID, it must be a number.", p.ByName("productId"))
 		json.NewEncoder(w).Encode(reply)
@@ -111,7 +101,8 @@ func UpdateProductByIdHandler(w http.ResponseWriter, r *http.Request, p httprout
 	err = decoder.Decode(&updateProduct)
 
 	if err != nil {
-		fmt.Println("Error :",err)
+		logs.Error(span,err,logs.OtlpErrorOption{"critical",fmt.Sprintf("response ended with %v status code",http.StatusBadRequest)});
+
 		w.WriteHeader(http.StatusBadRequest)
 		reply.Message = "Bad Product"
 		json.NewEncoder(w).Encode(reply)
@@ -121,7 +112,8 @@ func UpdateProductByIdHandler(w http.ResponseWriter, r *http.Request, p httprout
 	id, err = productService.UpdateProduct(id,updateProduct)
 
 	if err == productService.ErrProductUnknown {
-		fmt.Println("Error :",err)
+		logs.Error(span,err,logs.OtlpErrorOption{"warn",fmt.Sprintf("response ended with %v status code",http.StatusBadRequest)});
+
 		w.WriteHeader(http.StatusBadRequest)
 		reply.Message = "Product doesn't exist."
 		json.NewEncoder(w).Encode(reply)
@@ -129,7 +121,8 @@ func UpdateProductByIdHandler(w http.ResponseWriter, r *http.Request, p httprout
 	}
 
 	if err == productService.ErrProductAlreadyUpToDate {
-		fmt.Println("Error :",err)
+		logs.Error(span,err,logs.OtlpErrorOption{"warn",fmt.Sprintf("response ended with %v status code",http.StatusBadRequest)});
+
 		w.WriteHeader(http.StatusBadRequest)
 		reply.Message = "No new values to update"
 		json.NewEncoder(w).Encode(reply)
@@ -137,30 +130,34 @@ func UpdateProductByIdHandler(w http.ResponseWriter, r *http.Request, p httprout
 	}
 
 	if err != nil{
-		fmt.Println("Error :",err)
+		logs.Error(span,err,logs.OtlpErrorOption{"critical",fmt.Sprintf("response ended with %v status code",http.StatusInternalServerError)});
+
 		w.WriteHeader(http.StatusInternalServerError)
 		reply.Message = "Something went wrong."
 		json.NewEncoder(w).Encode(reply)
 		return
 	}
 
-	// send the updated product to kafka
-	product,err := productService.GetProduct(id)
-	if err  != nil{
-		fmt.Println("Error fetching created product:",err)
-	}
-	kafkaClient.ProduceMessage(kafkaTopics.PRODUCT_UPDATED,product)
+	logs.Log(span, fmt.Sprintf("product %d updated successfully",id))
+	
+	productMessages.ProduceProductUpdatedMessage(newCtx,id)
+
 	json.NewEncoder(w).Encode(response.SuccessResponse {Id:id})
 }
 
 func GetProductByIdHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params){
+
+	_, span := otel.Tracer(telementaryUtils.SERVICE_NAME).Start(r.Context(), "ProductController.GetProductByIdHandler")
+	defer span.End()
+
 	var reply response.ErrorResponse
 	w.Header().Set("Content-Type", "application/json")
 
 	ID, err := strconv.ParseInt(p.ByName("productId"),10,64)
 
 	if err != nil {
-		fmt.Println("Error :",err)
+		logs.Error(span,err,logs.OtlpErrorOption{"warn",fmt.Sprintf("response ended with %v status code",http.StatusBadRequest)});
+
 		w.WriteHeader(http.StatusBadRequest)
 		reply.Message =fmt.Sprintf("%s is not a valid product ID, it must be a number.", p.ByName("productId"))
 		json.NewEncoder(w).Encode(reply)
@@ -170,7 +167,8 @@ func GetProductByIdHandler(w http.ResponseWriter, r *http.Request, p httprouter.
 	product,err := productService.GetProduct(ID)
 
 	if err == productService.ErrProductUnknown {
-		fmt.Println("Error :",err)
+		logs.Error(span,err,logs.OtlpErrorOption{"warn",fmt.Sprintf("response ended with %v status code",http.StatusBadRequest)});
+
 		w.WriteHeader(http.StatusBadRequest)
 		reply.Message = "Product doesn't exist."
 		json.NewEncoder(w).Encode(reply)
@@ -178,25 +176,32 @@ func GetProductByIdHandler(w http.ResponseWriter, r *http.Request, p httprouter.
 	}
 
 	if err != nil {
-		fmt.Println("Error :",err)
+		logs.Error(span,err,logs.OtlpErrorOption{"critical",fmt.Sprintf("response ended with %v status code",http.StatusInternalServerError)});
+
 		w.WriteHeader(http.StatusInternalServerError)
 		reply.Message = "Something went wrong."
 		json.NewEncoder(w).Encode(reply)
 		return
 	}
 
+	logs.Log(span, fmt.Sprintf("product %d fetched successfully",ID))
+
 	json.NewEncoder(w).Encode(product)
 }
 
 
 func DeleteProductByIdHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params){
+	newCtx, span := otel.Tracer(telementaryUtils.SERVICE_NAME).Start(r.Context(), "ProductController.DeleteProductByIdHandler")
+	defer span.End()
+
 	var reply response.ErrorResponse
 	w.Header().Set("Content-Type", "application/json")
 
 	ID, err := strconv.ParseInt(p.ByName("productId"),10,64)
 
 	if err != nil {
-		fmt.Println("Error :",err)
+		logs.Error(span,err,logs.OtlpErrorOption{"warn",fmt.Sprintf("response ended with %v status code",http.StatusBadRequest)});
+
 		w.WriteHeader(http.StatusBadRequest)
 		reply.Message = fmt.Sprintf("%s is not a valid product ID, it must be a number.", p.ByName("productId"))
 		json.NewEncoder(w).Encode(reply)
@@ -206,7 +211,8 @@ func DeleteProductByIdHandler(w http.ResponseWriter, r *http.Request, p httprout
 	product,err := productService.DeleteProduct(ID)
 
 	if err == productService.ErrProductUnknown {
-		fmt.Println("Error :",err)
+		logs.Error(span,err,logs.OtlpErrorOption{"warn",fmt.Sprintf("response ended with %v status code",http.StatusNotFound)});
+
 		w.WriteHeader(http.StatusNotFound)
 		reply.Message = "Product doesn't exist."
 		json.NewEncoder(w).Encode(reply)
@@ -214,13 +220,17 @@ func DeleteProductByIdHandler(w http.ResponseWriter, r *http.Request, p httprout
 	}
 
 	if err != nil {
-		fmt.Println("Error :",err)
+		logs.Error(span,err,logs.OtlpErrorOption{"critical",fmt.Sprintf("response ended with %v status code",http.StatusInternalServerError)});
+
 		w.WriteHeader(http.StatusInternalServerError)
 		reply.Message = "Something went wrong."
 		json.NewEncoder(w).Encode(reply)
 		return
 	}
 
-	kafkaClient.ProduceMessage(kafkaTopics.PRODUCT_DELETED,product)
-	json.NewEncoder(w).Encode(response.SuccessResponse {Id:product.Id})
+	logs.Log(span, fmt.Sprintf("product %d deleted successfully", ID))
+
+	productMessages.ProduceProductDeletedMessage(newCtx, product)
+
+	json.NewEncoder(w).Encode(response.SuccessResponse { Id:product.Id })
 }

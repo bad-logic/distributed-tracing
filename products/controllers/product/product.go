@@ -14,7 +14,8 @@ import (
 	"products/utils/struct"
 	"products/kafka/client"
 	"products/kafka/topics"
-	"products/utils/telemetry"
+	"products/utils/otlp/telemetry"
+	"products/utils/otlp/logs"
 )
 
 
@@ -29,30 +30,24 @@ func GetAllProductHandler(w http.ResponseWriter, r *http.Request, _ httprouter.P
 	products, err := productService.GetAll()
 	
 	if err != nil{
-		fmt.Println("Error:",err)
-		span.RecordError(err)
-		span.SetStatus(codes.Error, err.Error())
-
-		span.AddEvent("log",trace.WithAttributes(
-			attribute.String("log.severity", "info"),
-			attribute.String("log.message","Something went wrong."),
-			attribute.Int("log.status",http.StatusInternalServerError),
-		))
+		logs.Error(span,err,logs.OtlpErrorOption{"critical",fmt.Sprintf("response ended with %v status code",http.StatusInternalServerError)});
 
 		w.WriteHeader(http.StatusInternalServerError)
 		reply.Message ="Something went wrong."
 		json.NewEncoder(w).Encode(reply)
 		return
 	}
-	span.AddEvent("log",trace.WithAttributes(
-		attribute.String("log.severity", "info"),
-		attribute.String("log.message", "products fetched successfully"),
-	))
+
+	logs.Log(span, "product fetched successfully")
+	
 	json.NewEncoder(w).Encode(products)
 }
 
 
 func CreateProductHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	_, span := otel.Tracer(telementaryUtils.SERVICE_NAME).Start(r.Context(), "ProductController.CreateProductHandler")
+	defer span.End()
+
 	var reply response.ErrorResponse
 	w.Header().Set("Content-Type", "application/json")
 
@@ -63,6 +58,15 @@ func CreateProductHandler(w http.ResponseWriter, r *http.Request, _ httprouter.P
 
 	if err != nil {
 		fmt.Println("Error :",err)
+
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+
+		span.AddEvent("log",trace.WithAttributes(
+			attribute.String("log.severity", "info"),
+			attribute.String("log.message","Something went wrong."),
+			attribute.Int("log.status",http.StatusInternalServerError),
+		))
 		w.WriteHeader(http.StatusBadRequest)
 		reply.Message = "Bad Product"
 		json.NewEncoder(w).Encode(reply)

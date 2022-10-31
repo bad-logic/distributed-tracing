@@ -15,7 +15,7 @@ import (
 	"products/controllers/product"
 	"products/controllers/app"
 	"products/kafka/client"
-	"products/utils/telemetry"
+	"products/utils/otlp/telemetry"
 )
 
 func setTelemetryContext(n httprouter.Handle) httprouter.Handle{

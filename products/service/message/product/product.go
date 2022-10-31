@@ -13,11 +13,11 @@ import (
 
 
 func ProduceProductCreatedMessage(ctx context.Context , id int64){
-	_, span := otel.Tracer(telementaryUtils.SERVICE_NAME).Start(ctx, fmt.Sprintf("kafka product.ProductCreated for product %d",id))
+	newCtx, span := otel.Tracer(telementaryUtils.SERVICE_NAME).Start(ctx, fmt.Sprintf("kafka product.ProductCreated for product %d",id))
 
 	defer span.End()
 
-	product, err := productService.GetProduct(id)
+	product, err := productService.GetProduct(newCtx, id)
 	if err  != nil {
 		logs.Error(span, err, logs.OtlpErrorOption{"critical",fmt.Sprintf("unable to produce message %v", err)});
 		return;
@@ -31,12 +31,12 @@ func ProduceProductCreatedMessage(ctx context.Context , id int64){
 } 
 
 func ProduceProductUpdatedMessage(ctx context.Context, id int64){
-	_, span := otel.Tracer(telementaryUtils.SERVICE_NAME).Start(ctx, fmt.Sprintf("kafka product.ProductUpdated for product %d",id))
+	newCtx, span := otel.Tracer(telementaryUtils.SERVICE_NAME).Start(ctx, fmt.Sprintf("kafka product.ProductUpdated for product %d",id))
 
 	defer span.End()
 
 	// send the updated product to kafka
-	product,err := productService.GetProduct(id)
+	product,err := productService.GetProduct(newCtx, id)
 	if err  != nil{
 		logs.Error(span, err, logs.OtlpErrorOption{"critical",fmt.Sprintf("unable to produce message %v", err)});
 		return

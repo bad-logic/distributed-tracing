@@ -17,13 +17,13 @@ import (
 
 func GetAllProductHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	// creating a new span for the same trace-id 
-	_, span := otel.Tracer(telementaryUtils.SERVICE_NAME).Start(r.Context(), "ProductController.GetAllProductHandler")
+	newCtx, span := otel.Tracer(telementaryUtils.SERVICE_NAME).Start(r.Context(), "ProductController.GetAllProductHandler")
 	defer span.End()
 
 	var reply response.ErrorResponse
 	w.Header().Set("Content-Type", "application/json")
 	
-	products, err := productService.GetAll()
+	products, err := productService.GetAll(newCtx)
 	
 	if err != nil{
 		logs.Error(span,err,logs.OtlpErrorOption{"critical",fmt.Sprintf("response ended with %v status code",http.StatusInternalServerError)});
@@ -60,7 +60,7 @@ func CreateProductHandler(w http.ResponseWriter, r *http.Request, _ httprouter.P
 		json.NewEncoder(w).Encode(reply)
 		return
 	}
-	id, err := productService.AddProduct(newProduct)
+	id, err := productService.AddProduct(newCtx,newProduct)
 
 	if err != nil{
 		logs.Error(span,err,logs.OtlpErrorOption{"critical",fmt.Sprintf("response ended with %v status code",http.StatusInternalServerError)});
@@ -109,7 +109,7 @@ func UpdateProductByIdHandler(w http.ResponseWriter, r *http.Request, p httprout
 		return
 	}
 
-	id, err = productService.UpdateProduct(id,updateProduct)
+	id, err = productService.UpdateProduct(newCtx,id,updateProduct)
 
 	if err == productService.ErrProductUnknown {
 		logs.Error(span,err,logs.OtlpErrorOption{"warn",fmt.Sprintf("response ended with %v status code",http.StatusBadRequest)});
@@ -147,7 +147,7 @@ func UpdateProductByIdHandler(w http.ResponseWriter, r *http.Request, p httprout
 
 func GetProductByIdHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params){
 
-	_, span := otel.Tracer(telementaryUtils.SERVICE_NAME).Start(r.Context(), "ProductController.GetProductByIdHandler")
+	newCtx, span := otel.Tracer(telementaryUtils.SERVICE_NAME).Start(r.Context(), "ProductController.GetProductByIdHandler")
 	defer span.End()
 
 	var reply response.ErrorResponse
@@ -164,7 +164,7 @@ func GetProductByIdHandler(w http.ResponseWriter, r *http.Request, p httprouter.
 		return
 	}
 
-	product,err := productService.GetProduct(ID)
+	product,err := productService.GetProduct(newCtx, ID)
 
 	if err == productService.ErrProductUnknown {
 		logs.Error(span,err,logs.OtlpErrorOption{"warn",fmt.Sprintf("response ended with %v status code",http.StatusBadRequest)});
@@ -208,7 +208,7 @@ func DeleteProductByIdHandler(w http.ResponseWriter, r *http.Request, p httprout
 		return
 	}
 
-	product,err := productService.DeleteProduct(ID)
+	product,err := productService.DeleteProduct(newCtx, ID)
 
 	if err == productService.ErrProductUnknown {
 		logs.Error(span,err,logs.OtlpErrorOption{"warn",fmt.Sprintf("response ended with %v status code",http.StatusNotFound)});

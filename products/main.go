@@ -1,21 +1,44 @@
 package main 
 
 import (
-	"github.com/julienschmidt/httprouter"
-	"encoding/json"
+	"context"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
+	"github.com/julienschmidt/httprouter"
+	"go.opentelemetry.io/otel"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	"go.opentelemetry.io/otel/attribute"
 	"products/db"
 	"products/controllers/product"
+	"products/controllers/app"
 	"products/kafka/client"
+	"products/utils/telemetry"
 )
 
-type Message struct{
-	Message string `json:"message"`
+func setTelemetryContext(n httprouter.Handle) httprouter.Handle{
+	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params){	
+
+		// starting with r.Context allows us to make sure to include the traceid and tracestate if the request
+		// is made by any other service that has propagated the traceid or tracestatue
+		ctx := r.Context()
+
+		// create and store a span in the provided context
+		newCtx , span := otel.Tracer(telementaryUtils.SERVICE_NAME).Start(ctx, fmt.Sprintf("%s:%s", r.Method, r.URL))
+		span.SetAttributes(
+			attribute.String("http.method", r.Method),
+			attribute.String("http.route", r.URL.Path),
+		)
+		defer span.End()
+
+		// saving the context with the created span as a part of the request object
+		r = r.WithContext(newCtx)
+		n(w,r,ps)
+	}
 }
+
 
 func panicHandler(n httprouter.Handle) httprouter.Handle{
 	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params){
@@ -30,6 +53,7 @@ func panicHandler(n httprouter.Handle) httprouter.Handle{
 	}
 }
 
+
 func init(){
 	connect.ConnectToDatabase()
 }
@@ -40,27 +64,40 @@ func init(){
 
 
 func main(){
+	
 	port, err := strconv.Atoi(os.Getenv("PORT"))
 	if err!= nil{
 		log.Fatal("Cannot parse PORT env")
 	}
+
+	exp, err := telementaryUtils.NewTelemetryCollectorExporter(context.Background())
+	if err!= nil{
+		log.Fatal(err)
+	}
+
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithBatcher(exp),
+		sdktrace.WithResource(telementaryUtils.NewOpenTelemetryResource()),
+	)
+
+	defer func() {
+		if err := tp.Shutdown(context.Background()); err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	otel.SetTracerProvider(tp)
+
 	
 	router := httprouter.New()
   
-	router.GET("/products", panicHandler(productController.GetAllProductHandler))
-	router.POST("/product", panicHandler(productController.CreateProductHandler))
-	router.GET("/product/:productId", panicHandler(productController.GetProductByIdHandler))
-	router.PUT("/product/:productId", panicHandler(productController.UpdateProductByIdHandler))
-	router.DELETE("/product/:productId", panicHandler(productController.DeleteProductByIdHandler))
+	router.GET("/products", setTelemetryContext(panicHandler(productController.GetAllProductHandler)))
+	router.POST("/product", setTelemetryContext(panicHandler(productController.CreateProductHandler)))
+	router.GET("/product/:productId", setTelemetryContext(panicHandler(productController.GetProductByIdHandler)))
+	router.PUT("/product/:productId", setTelemetryContext(panicHandler(productController.UpdateProductByIdHandler)))
+	router.DELETE("/product/:productId", setTelemetryContext(panicHandler(productController.DeleteProductByIdHandler)))
 
-	router.NotFound = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
-		w.WriteHeader(http.StatusNotFound)
-		w.Header().Set("Content-Type", "application/json")
-		response := Message{
-			Message:"NOT FOUND",
-		}
-		json.NewEncoder(w).Encode(response)
-	})
+	router.NotFound = http.HandlerFunc(appController.Global404Handler)
 
 	fmt.Printf("The  server is on tap now: http://localhost:%v\n",port);
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(port), router))

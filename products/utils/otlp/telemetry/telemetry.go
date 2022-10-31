@@ -13,7 +13,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-const SERVICE_NAME = "product_service"
+const SERVICE_NAME = "product_ms"
 
 /*
 	Exporter to export data to the console/terminal

@@ -12,6 +12,9 @@ from opentelemetry.sdk.resources import Resource
 from .logger import Logger
 from .singleton import Singleton
 
+# otlp => open telemetry specification
+
+
 SERVICE_NAME = "order_ms"
 
 

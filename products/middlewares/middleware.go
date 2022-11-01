@@ -19,7 +19,7 @@ func TelemetryContextHandler(n httprouter.Handle) httprouter.Handle{
 		ctx := r.Context()
 
 		// create and store a span in the provided context
-		newCtx , span := otel.Tracer(telementaryUtils.SERVICE_NAME).Start(ctx, fmt.Sprintf("%s:%s", r.Method, r.URL))
+		newCtx , span := otel.Tracer(telementaryUtils.SERVICE_NAME).Start(ctx, fmt.Sprintf("%s:%s", r.Method, r.URL.Path))
 		span.SetAttributes(
 			attribute.String("http.method", r.Method),
 			attribute.String("http.route", r.URL.Path),

@@ -54,7 +54,7 @@ class OrderService:
     def get_order_model_object(self, order_id: int, session: Session) -> GetOrderInterface:
         """ service to fetch an sqlalchemy order object """
         order = session.query(OrderTable).filter(
-            OrderTable.id == order_id).first()
+            OrderTable.Id == order_id).first()
         if order is None:
             raise HTTPException(
                 status_code=status_code.HTTP_404_NOT_FOUND, detail=f"order with ID {order_id} not found")

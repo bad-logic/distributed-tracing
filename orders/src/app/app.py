@@ -41,9 +41,9 @@ async def set_opentelemetry_context(request: Request, call_next):
         return response
 
 
-request_handler.include_router(order_router, prefix="/orders/order")
+request_handler.include_router(order_router, prefix="/order")
 request_handler.include_router(
-    consumer_router, prefix="/orders/consume")
+    consumer_router, prefix="/consume")
 
 
 @request_handler.get("/health", status_code=status.HTTP_200_OK)

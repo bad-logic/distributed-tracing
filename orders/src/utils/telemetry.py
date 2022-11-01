@@ -3,9 +3,9 @@ import os
 
 from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.sdk.trace.export import (
     BatchSpanProcessor,
-    ConsoleSpanExporter,
 )
 from opentelemetry.sdk.resources import Resource
 
@@ -41,8 +41,11 @@ class Telemetry(metaclass=Singleton):
                 "service.version": "v1.0.0",
             }),
         )
-        processor = BatchSpanProcessor(ConsoleSpanExporter())
-        self.provider.add_span_processor(processor)
+
+        otlp_exporter = OTLPSpanExporter(endpoint=os.getenv(
+            "LOG_COLLECTOR_ENDPOINT"), insecure=True)
+        span_processor = BatchSpanProcessor(otlp_exporter)
+        self.provider.add_span_processor(span_processor)
 
         # Sets the global default tracer provider
         trace.set_tracer_provider(self.provider)

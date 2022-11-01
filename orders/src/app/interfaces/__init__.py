@@ -1,2 +1,2 @@
-from .order_interface import StatusEnum, GetOrderInterface, CreateOrderInterface
+from .order_interface import StatusEnum, GetOrderInterface, CreateOrderInterface, PatchOrderAddressInterface, PatchOrderStatusInterface
 from .product_interface import GeneralProductInterface

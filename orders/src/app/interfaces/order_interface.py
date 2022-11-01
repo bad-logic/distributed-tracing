@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
 
 
@@ -17,6 +17,20 @@ class CreateOrderInterface(BaseModel):
     Product: List[int]
     Status: StatusEnum = StatusEnum.ORDER_PLACED
     Address: str
+
+
+class PatchOrderAddressInterface(BaseModel):
+    """
+    Represents a interface for updating order address
+    """
+    Address: str
+
+
+class PatchOrderStatusInterface(BaseModel):
+    """
+    Represents a interface for updating order status
+    """
+    Status: StatusEnum
 
 
 class GetOrderInterface(BaseModel):

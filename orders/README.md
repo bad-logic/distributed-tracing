@@ -3,6 +3,9 @@ for migration alembic is used
 go to the shell of your docker container
 go to /src folder
 
+poetry add <package_name>
+poetry remove <package_name>
+
 FOR MIGRATIONS
 
 ```

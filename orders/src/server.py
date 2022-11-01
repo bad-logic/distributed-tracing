@@ -1,12 +1,11 @@
 import os
 import traceback
 import uvicorn
-from db import DBConnector
 from utils import Logger
 from app import request_handler
 
+
 logger = Logger().get_logger()
-connector = DBConnector()
 
 if __name__ == "__main__":
     try:

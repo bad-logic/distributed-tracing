@@ -29,9 +29,10 @@ def upgrade() -> None:
                     sa.Column('Status', sa.Enum('ORDER_PLACED', 'ORDER_ON_ROUTE',
                                                 'ORDER_DELIVERED', name='status'), nullable=False, default="ORDER_PLACED"),
                     sa.Column('Address', sa.String(length=50), nullable=False),
-                    sa.Column('CreatedAt', sa.TIMESTAMP(),
-                              nullable=False, default=datetime.datetime.now),
-                    sa.Column('UpdatedAt', sa.TIMESTAMP(), nullable=False),
+                    sa.Column('CreatedAt', sa.TIMESTAMP(
+                    ), server_default=sa.func.now(), nullable=False),
+                    sa.Column('UpdatedAt', sa.TIMESTAMP(),
+                              server_default=sa.func.now(), server_onupdate=sa.func.now(), nullable=False),
                     sa.PrimaryKeyConstraint('Id')
                     )
     # ### end Alembic commands ###

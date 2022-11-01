@@ -32,3 +32,9 @@ alembic upgrade head
 ```
 
 to run the migrations
+
+```
+alembic downgrade -n
+```
+
+to undo last n migrations

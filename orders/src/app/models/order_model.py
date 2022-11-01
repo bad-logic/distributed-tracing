@@ -19,7 +19,7 @@ class OrderTable(Base):
     CreatedAt = Column(TIMESTAMP, nullable=False,
                        default=datetime.datetime.now)
     UpdatedAt = Column(TIMESTAMP, nullable=False,
-                       onupdate=datetime.datetime.now)
+                       default=datetime.datetime.now, onupdate=datetime.datetime.now)
 
     def dict(self):
         """ returns the dictionary object for the order table """

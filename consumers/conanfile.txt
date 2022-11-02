@@ -1,7 +1,10 @@
 [requires]
+boost/1.80.0
+libcurl/7.80.0
 yaml-cpp/0.7.0
 cppkafka/0.4.0
 cpr/1.9.0
+opentelemetry-cpp/1.6.1
 
 [generators]
 cmake

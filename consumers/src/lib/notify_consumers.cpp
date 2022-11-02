@@ -1,9 +1,12 @@
 #pragma once
 
 #include <iostream>
-
+#include <map>
 #include <cppkafka/cppkafka.h>
 #include <cpr/cpr.h>
+
+// #include <opentelemetry/sdk/version/version.h>
+#include <opentelemetry/trace/provider.h>
 
 void ListenToKafkaTopicsAndNotifyTheConsumers(std::map<std::string, std::vector<std::string>> consumers, std::string kafka_brokers)
 {
@@ -36,6 +39,10 @@ void ListenToKafkaTopicsAndNotifyTheConsumers(std::map<std::string, std::vector<
                                      { std::cout << "Got revoked: " << partitions << std::endl; });
 
     // check for messages in those topics
+
+    // get the global tracer
+    auto provider = opentelemetry::trace::Provider::GetTracerProvider();
+    auto tracer = provider->GetTracer(std::getenv("SERVICE_NAME"));
     while (true)
     {
         cppkafka::Message message = consumer.poll();
@@ -45,6 +52,7 @@ void ListenToKafkaTopicsAndNotifyTheConsumers(std::map<std::string, std::vector<
             continue;
         }
 
+        auto scoped_span = opentelemetry::trace::Scope(tracer->StartSpan(std::getenv("SERVICE_NAME")));
         if (message.get_error())
         {
             // librdkafka provides an error indicating we've reached the
@@ -60,12 +68,19 @@ void ListenToKafkaTopicsAndNotifyTheConsumers(std::map<std::string, std::vector<
         std::cout << "[+] Received message with key " << message.get_key() << " , topic -> " << message.get_topic() << " on Partition "
                   << message.get_partition() << ", offset " << message.get_offset() << ", with payload -> " << message.get_payload() << std::endl;
 
+        // cppkafka::HeaderList headers = message.get_header_list() << std::endl;
+
+        // std::ostream myout(std::cout.rdbuf());
+
+        // std::ostringstream s2(std::ostringstream() << message.get_header_list());
+        // myout << s2.str() << '\n';
+
         std::string topic = message.get_topic();
         std::vector<std::string> hosts = consumers[topic];
 
         for (int i = 0; i < hosts.size(); i++)
         {
-            std::cout << "[+] Sending data to" << hosts[i] << " ..." << std::endl;
+            std::cout << "[+] Sending data to " << hosts[i] << " ..." << std::endl;
             cpr::Response response = cpr::Post(cpr::Url{hosts[i]},
                                                cpr::Body{std::string(message.get_payload())},
                                                cpr::Header{{"Content-Type", "application/json"}});

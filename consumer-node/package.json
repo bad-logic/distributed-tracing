@@ -10,5 +10,12 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=3"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  }
 }

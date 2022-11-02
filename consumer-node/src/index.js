@@ -1,10 +1,9 @@
 import url from "node:url";
+import { getKafkaTopicAndItsListeners } from "./lib/readYaml.js";
 
 if (import.meta.url === url.pathToFileURL(process.argv[1]).href) {
-  console.info("running main application");
-
   const gracefulShutdown = () => {
-    console.warn("Http Server stopped!!!");
+    console.warn("Stopping the consumer program !!!");
     process.exit(1);
   };
 
@@ -33,4 +32,11 @@ if (import.meta.url === url.pathToFileURL(process.argv[1]).href) {
     console.error(`Application Crashed  ${error?.stack?.split("\n")}`);
     gracefulShutdown();
   });
+
+  try {
+    getKafkaTopicAndItsListeners();
+  } catch (err) {
+    console.log("ERROR: ", err);
+    gracefulShutdown();
+  }
 }

@@ -38,7 +38,6 @@ export function getKafkaTopicAndItsListeners() {
   const listeners = {};
 
   for (const consumer of consumers) {
-    console.log({ consumer });
     const topic = consumer["topic"];
     if (!Array.isArray(listeners[topic])) {
       listeners[topic] = [];

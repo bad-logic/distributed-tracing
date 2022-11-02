@@ -10,7 +10,7 @@ from sqlalchemy.orm import sessionmaker, Session
 from opentelemetry import trace
 
 from db import DBConnector
-from utils import TelemetryLogger, SERVICE_NAME
+from utils import TelemetryLogger, SERVICE_NAME, LogLevelEnum
 from ..interfaces import CreateOrderInterface, GetOrderInterface, StatusEnum
 from ..models import OrderTable
 
@@ -55,7 +55,7 @@ class OrderService:
         """ service to fetch orders """
         with self.tracer.start_as_current_span("OrderService.get_orders") as curr_span:
             self.otlp_logger.log(curr_span,
-                                 "querying database for order")
+                                 "querying database for orders")
             with session_maker() as session:
                 orders = session.query(OrderTable).offset(
                     (offset - 1) * limit).limit(limit).all()
@@ -72,6 +72,8 @@ class OrderService:
             order = session.query(OrderTable).filter(
                 OrderTable.Id == order_id).first()
             if order is None:
+                self.otlp_logger.error(curr_span, Exception(f"order {order_id} not found in database"), LogLevelEnum.INFO,
+                                       f"response ended with {status_code.HTTP_404_NOT_FOUND} status code")
                 raise HTTPException(
                     status_code=status_code.HTTP_404_NOT_FOUND, detail=f"order with ID {order_id} not found")
             self.otlp_logger.log(curr_span,

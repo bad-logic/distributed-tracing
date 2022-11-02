@@ -19,8 +19,8 @@ class OrderController:
     """
 
     def __init__(self):
-        self.otlp_logger = TelemetryLogger()
         self.order_service = OrderService()
+        self.otlp_logger = TelemetryLogger()
         self.tracer = trace.get_tracer(SERVICE_NAME)
 
     def handle_order_creation(self, order: CreateOrderInterface) -> GetOrderInterface:

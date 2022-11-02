@@ -1,9 +1,10 @@
-package logs 
+package logs
 
 import (
 	"fmt"
-	"go.opentelemetry.io/otel/codes"
+
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -14,6 +15,7 @@ type ERROR_LEVEL string
 const (
 	WARN ERROR_LEVEL = "warn"
 	CRITICAL  ERROR_LEVEL = "critical"
+	INFO ERROR_LEVEL = "info"
 )
 
 type OtlpErrorOption struct {

@@ -1,6 +1,6 @@
-consumers:
+configs:
   group_id: "order_service_consumers"
-  topics:
+  consumers:
     - topic: productService.productCreated
       listeners:
         - host: order-service:8083

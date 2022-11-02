@@ -1,0 +1,31 @@
+# -----------> Build Image
+FROM node:latest AS BuildImage
+
+RUN npm i -g pnpm
+
+WORKDIR /usr/app
+
+COPY package.json .
+COPY pnpm-lock.yaml .
+
+# RUN pnpm install --frozen-lockfile --prod
+RUN pnpm install
+
+# -------------> Production Image
+
+# image@digest
+FROM node:18-bullseye-slim@sha256:f3ecbc009558021098b634afe45ee6179aaa80a65501cd90dad65e0db9490af5
+
+ENV NODE_ENV production
+
+COPY --chown=node:node --from=BuildImage /usr/app/node_modules /usr/app/node_modules
+
+WORKDIR /usr/app
+
+# make sure the copied files are also owned by the node user
+COPY --chown=node:node . .
+
+# make sure the process is owned by the node user
+USER node
+
+CMD ["npm" ,"run", "dev"]

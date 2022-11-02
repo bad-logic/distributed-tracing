@@ -109,11 +109,28 @@ services:
     volumes:
       - orders_db:/var/lib/mysql:delegated
 
-  consumer_service:
-    container_name: consumer-service-container
-    image: consumer-service:v1.0.3
+  # consumer_service:
+  #   container_name: consumer-service-container
+  #   image: consumer-service:v1.0.3
+  #   build:
+  #     context: ../consumers
+  #     dockerfile: Imagefile
+  #   networks:
+  #     - shop_backend_network
+  #     - kafka_network
+  #     - ext_log_network
+  #   environment:
+  #     - KAFKA_BROKERS=kafka1:9092
+  #     - LOG_COLLECTOR_ENDPOINT=otel_collector_service:4317
+  #     - SERVICE_NAME=order-consumer-sidecar-ms
+  #   volumes:
+  #     - ../consumers/src:/usr/app/src
+
+  consumer_service_node:
+    container_name: consumer-service-node-container
+    image: consumer-service-node:v1.0.3
     build:
-      context: ../consumers
+      context: ../consumer-node
       dockerfile: Imagefile
     networks:
       - shop_backend_network
@@ -124,4 +141,4 @@ services:
       - LOG_COLLECTOR_ENDPOINT=otel_collector_service:4317
       - SERVICE_NAME=order-consumer-sidecar-ms
     volumes:
-      - ../consumers/src:/usr/app/src
+      - ../consumer-node/src:/usr/app/src

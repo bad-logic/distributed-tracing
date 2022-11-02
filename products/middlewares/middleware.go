@@ -1,13 +1,13 @@
-package middleware 
+package middleware
 
 import (
 	"fmt"
 	"net/http"
+	telementaryUtils "products/utils/otlp/telemetry"
+
 	"github.com/julienschmidt/httprouter"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
-	"products/utils/otlp/telemetry"
-
 )
 
 

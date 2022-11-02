@@ -6,6 +6,7 @@ require (
 	github.com/Shopify/sarama v1.37.2
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/julienschmidt/httprouter v1.3.0
+	go.opentelemetry.io/contrib/instrumentation/github.com/Shopify/sarama/otelsarama v0.36.4
 	go.opentelemetry.io/otel v1.11.1
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.11.1
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.11.1

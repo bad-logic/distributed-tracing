@@ -1,17 +1,18 @@
-package productController 
+package productController
 
 import (
-	"fmt"
-	"strconv"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	productMessages "products/service/message/product"
+	productService "products/service/product"
+	"products/utils/otlp/logs"
+	telementaryUtils "products/utils/otlp/telemetry"
+	response "products/utils/struct"
+	"strconv"
+
 	"github.com/julienschmidt/httprouter"
 	"go.opentelemetry.io/otel"
-	"products/service/product"
-	productMessages "products/service/message/product"
-	"products/utils/struct"
-	"products/utils/otlp/telemetry"
-	"products/utils/otlp/logs"
 )
 
 

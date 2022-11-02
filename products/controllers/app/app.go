@@ -1,9 +1,9 @@
-package appController 
+package appController
 
 import (
 	"encoding/json"
 	"net/http"
-	"products/utils/struct"
+	response "products/utils/struct"
 )
 
 func Global404Handler (w http.ResponseWriter, r *http.Request){

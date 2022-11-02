@@ -1,14 +1,15 @@
 package produceProductMessages
 
 import (
-	"fmt"
 	"context"
-	"go.opentelemetry.io/otel"
-	"products/kafka/client"
-	"products/kafka/topics"
-	"products/service/product"
-	"products/utils/otlp/telemetry"
+	"fmt"
+	kafkaClient "products/kafka/client"
+	kafkaTopics "products/kafka/topics"
+	productService "products/service/product"
 	"products/utils/otlp/logs"
+	telementaryUtils "products/utils/otlp/telemetry"
+
+	"go.opentelemetry.io/otel"
 )
 
 
@@ -22,7 +23,7 @@ func ProduceProductCreatedMessage(ctx context.Context , id int64){
 		logs.Error(span, err, logs.OtlpErrorOption{"critical",fmt.Sprintf("unable to produce message %v", err)});
 		return;
 	}
-	message, err := kafkaClient.ProduceMessage(kafkaTopics.PRODUCT_CREATED,product)
+	message, err := kafkaClient.ProduceMessage(newCtx, kafkaTopics.PRODUCT_CREATED,product)
 	if err  != nil {
 		logs.Error(span, err, logs.OtlpErrorOption{"critical",fmt.Sprintf("unable to produce message %v", err)});
 		return;
@@ -42,7 +43,7 @@ func ProduceProductUpdatedMessage(ctx context.Context, id int64){
 		return
 	}
 
-	message, err := kafkaClient.ProduceMessage(kafkaTopics.PRODUCT_UPDATED,product)
+	message, err := kafkaClient.ProduceMessage(newCtx, kafkaTopics.PRODUCT_UPDATED,product)
 
 	if err  != nil {
 		logs.Error(span, err, logs.OtlpErrorOption{"critical",fmt.Sprintf("unable to produce message %v", err)});
@@ -52,11 +53,11 @@ func ProduceProductUpdatedMessage(ctx context.Context, id int64){
 }
 
 func ProduceProductDeletedMessage(ctx context.Context, product productService.Product){
-	_, span := otel.Tracer(telementaryUtils.SERVICE_NAME).Start(ctx, fmt.Sprintf("kafka product.ProductDeleted for product %d",product.Id))
+	newCtx, span := otel.Tracer(telementaryUtils.SERVICE_NAME).Start(ctx, fmt.Sprintf("kafka product.ProductDeleted for product %d",product.Id))
 
 	defer span.End()
 
-	message, err := kafkaClient.ProduceMessage(kafkaTopics.PRODUCT_DELETED, product)
+	message, err := kafkaClient.ProduceMessage(newCtx, kafkaTopics.PRODUCT_DELETED, product)
 
 	if err  != nil {
 		logs.Error(span, err, logs.OtlpErrorOption{"critical",fmt.Sprintf("unable to produce message %v", err)});

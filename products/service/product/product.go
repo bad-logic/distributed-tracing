@@ -2,14 +2,15 @@ package productService
 
 import (
 	"context"
-	"fmt"
-	"errors"
-	"time"
-	"go.opentelemetry.io/otel"
 	"database/sql"
-	"products/db"
+	"errors"
+	"fmt"
+	connect "products/db"
 	"products/utils/otlp/logs"
-	"products/utils/otlp/telemetry"
+	telementaryUtils "products/utils/otlp/telemetry"
+	"time"
+
+	"go.opentelemetry.io/otel"
 )
 
 type Product struct {

@@ -1,4 +1,4 @@
-package main 
+package main
 
 import (
 	"context"
@@ -6,16 +6,18 @@ import (
 	"log"
 	"net/http"
 	"os"
+	appController "products/controllers/app"
+	productController "products/controllers/product"
+	connect "products/db"
+	kafkaClient "products/kafka/client"
+	mw "products/middlewares"
+	telementaryUtils "products/utils/otlp/telemetry"
 	"strconv"
+
 	"github.com/julienschmidt/httprouter"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	"products/db"
-	"products/controllers/product"
-	"products/controllers/app"
-	"products/kafka/client"
-	"products/utils/otlp/telemetry"
-	mw "products/middlewares"
 )
 
 
@@ -53,6 +55,7 @@ func main(){
 	}()
 
 	otel.SetTracerProvider(tp)
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}))
 
 	
 	router := httprouter.New()

@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include "lib/notify_consumers.cpp"
 #include "lib/read_yaml.cpp"
+#include "lib/telemetry.cpp"
 
 int main()
 {
@@ -15,7 +16,7 @@ int main()
         {
             throw std::invalid_argument("KAFKA_BROKERS not provided");
         }
-
+        setUpTelemetry();
         ListenToKafkaTopicsAndNotifyTheConsumers(getKafkaTopicAndItsListeners(), brokers);
     }
     catch (std::invalid_argument &e)

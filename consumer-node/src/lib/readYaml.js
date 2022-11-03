@@ -39,11 +39,9 @@ export function getKafkaTopicAndItsListeners() {
 
   for (const consumer of consumers) {
     const topic = consumer["topic"];
+    const listener = consumer["listener"];
     if (!Array.isArray(listeners[topic])) {
-      listeners[topic] = [];
-    }
-    for (const l of consumer["listeners"]) {
-      listeners[topic].push(l["host"] + "/" + l["path"]);
+      listeners[topic] = listener["host"] + "/" + listener["path"];
     }
   }
 

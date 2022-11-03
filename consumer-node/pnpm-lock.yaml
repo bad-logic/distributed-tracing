@@ -2,10 +2,12 @@ lockfileVersion: 5.4
 
 specifiers:
   js-yaml: ^4.1.0
+  kafkajs: ^2.2.2
   nodemon: ^2.0.20
 
 dependencies:
   js-yaml: 4.1.0
+  kafkajs: 2.2.2
 
 devDependencies:
   nodemon: 2.0.20
@@ -142,6 +144,11 @@ packages:
     hasBin: true
     dependencies:
       argparse: 2.0.1
+    dev: false
+
+  /kafkajs/2.2.2:
+    resolution: {integrity: sha512-9wpGLAwRVbVtSew3xwi2f2BMuYLXWhYcoYB/O7gd1JYOYuYTAEC60CeFgRQugI016MxqvOKnOOA+l1jx+4b84g==}
+    engines: {node: '>=14.0.0'}
     dev: false
 
   /minimatch/3.1.2:

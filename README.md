@@ -69,8 +69,8 @@ Run application containers
 
 Please checkout service specific readme to run application
 
-[order microservice](./orders/README.md)
-[product microservice](./products/README.md)
-[order microservice](./orders/README.md)
-[consumer node](./consumer-node/README.md)
+[order microservice](./orders/README.md)\
+[product microservice](./products/README.md)\
+[order microservice](./orders/README.md)\
+[consumer node](./consumer-node/README.md)\
 [consumer cpp](./consumers/README.md)

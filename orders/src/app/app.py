@@ -1,9 +1,9 @@
+from utils import SERVICE_NAME, Telemetry
+from .routes import order_router, consumer_router
+from db import DBConnector
 from fastapi import FastAPI, status, Request
 from opentelemetry import trace
-
-from db import DBConnector
-from .routes import order_router, consumer_router
-from utils import SERVICE_NAME, Telemetry
+from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 
 
 request_handler = FastAPI(title="Orders Service", debug=True)
@@ -32,9 +32,17 @@ async def set_opentelemetry_context(request: Request, call_next):
     """
         middleware to create a span for method and url of the request
     """
-    # print(request.headers)
+    # transparent: {version}-{trace_id}-{span_id}-{trace_flags}
+    traceparent = request.headers.get("traceparent") or None
+
+    carrier = {'traceparent': request.headers.get("traceparent")
+               } if traceparent is not None else {}
+
+    # Then we use a propagator to get a context from it.
+    ctx = TraceContextTextMapPropagator().extract(carrier=carrier)
+
     tracer = trace.get_tracer(SERVICE_NAME)
-    with tracer.start_as_current_span(f"{request.method}:{request.url.path}") as parent:
+    with tracer.start_as_current_span(f"{request.method}:{request.url.path}", context=ctx) as parent:
         parent.set_attribute("http.method", request.method)
         parent.set_attribute("http.route", request.url.path)
         response = await call_next(request)

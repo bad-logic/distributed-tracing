@@ -1,42 +1,46 @@
 import url from "node:url";
 import { getKafkaTopicAndItsListeners } from "./lib/readYaml.js";
+import { ListenToKafkaTopicsAndNotifyTheConsumers } from "./lib/notifyConsumers.js";
 
 if (import.meta.url === url.pathToFileURL(process.argv[1]).href) {
-  const gracefulShutdown = () => {
-    console.warn("Stopping the consumer program !!!");
-    process.exit(1);
-  };
+  const errorTypes = ["unhandledRejection", "uncaughtException"];
+  const signalTraps = ["SIGTERM", "SIGINT"];
 
-  // handling termination signals
-
-  process.on("SIGTERM", () => {
-    // user presses ctrl + C
-    console.error("user presses ctrl + c");
-    gracefulShutdown();
+  errorTypes.forEach((type) => {
+    process.on(type, async (e) => {
+      try {
+        console.log(`process.on ${type}`);
+        console.error(e);
+        process.exit(0);
+      } catch (_) {
+        process.exit(1);
+      }
+    });
   });
 
-  process.on("SIGINT", () => {
-    // user presses ctrl + D
-    console.error("user presses ctrl + d");
-    gracefulShutdown();
-  });
-
-  // prevent promise rejection exits
-  process.on("unhandledRejection", (reason, promise) => {
-    console.error("unhandledRejection", reason);
-    throw reason;
-  });
-
-  // prevent dirty exit on code-fault crashes
-  process.on("uncaughtException", (error) => {
-    console.error(`Application Crashed  ${error?.stack?.split("\n")}`);
-    gracefulShutdown();
+  signalTraps.forEach((type) => {
+    process.once(type, async () => {
+      try {
+        console.log(`Received ${type} signal`);
+      } finally {
+        process.kill(process.pid, type);
+      }
+    });
   });
 
   try {
-    getKafkaTopicAndItsListeners();
+    const kafkaBrokersList = process.env["KAFKA_BROKERS"];
+    if (!kafkaBrokersList) {
+      throw Error("KAFKA_BROKERS not provided");
+    }
+    const { groupId, listeners } = getKafkaTopicAndItsListeners();
+    ListenToKafkaTopicsAndNotifyTheConsumers(
+      groupId,
+      listeners,
+      kafkaBrokersList
+    );
   } catch (err) {
     console.log("ERROR: ", err);
-    gracefulShutdown();
+    process.exit(1);
   }
 }

@@ -17,7 +17,8 @@
     "pnpm": ">=3"
   },
   "dependencies": {
-    "js-yaml": "^4.1.0"
+    "js-yaml": "^4.1.0",
+    "kafkajs": "^2.2.2"
   },
   "devDependencies": {
     "nodemon": "^2.0.20"

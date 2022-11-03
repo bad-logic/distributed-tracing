@@ -1,6 +1,7 @@
 import url from "node:url";
 import { getKafkaTopicAndItsListeners } from "./lib/readYaml.js";
 import { ListenToKafkaTopicsAndNotifyTheConsumers } from "./lib/notifyConsumers.js";
+import { setupTelemetry } from "./lib/telemetry.js";
 
 if (import.meta.url === url.pathToFileURL(process.argv[1]).href) {
   const errorTypes = ["unhandledRejection", "uncaughtException"];
@@ -34,6 +35,7 @@ if (import.meta.url === url.pathToFileURL(process.argv[1]).href) {
       throw Error("KAFKA_BROKERS not provided");
     }
     const { groupId, listeners } = getKafkaTopicAndItsListeners();
+    setupTelemetry();
     ListenToKafkaTopicsAndNotifyTheConsumers(
       groupId,
       listeners,

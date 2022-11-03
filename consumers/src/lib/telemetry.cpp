@@ -25,7 +25,7 @@ void setUpTelemetry()
     auto exporter =
         std::unique_ptr<opentelemetry::sdk::trace::SpanExporter>(opentelemetry::exporter::otlp::OtlpGrpcExporter(opts));
 
-    // exporter
+    // processor
     opentelemetry::sdk::trace::BatchSpanProcessorOptions options;
     auto processor = std::unique_ptr<opentelemetry::sdk::trace::SpanProcessor>(
         opentelemetry::sdk::trace::BatchSpanProcessor(std::move(exporter), options));

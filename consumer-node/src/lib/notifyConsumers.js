@@ -50,7 +50,7 @@ export async function ListenToKafkaTopicsAndNotifyTheConsumers(
         const { topic, partition, message } = kafkaPayload;
         const { headers, value, key, offset } = message;
 
-        // transparent: {version}-{trace_id}-{span_id}-{trace_flags}
+        // traceparent: {version}-{trace_id}-{span_id}-{trace_flags}
         let traceparent;
         Object.keys(headers).forEach((key) => {
           if (key.toLowerCase() === "traceparent") {
@@ -95,7 +95,14 @@ export async function ListenToKafkaTopicsAndNotifyTheConsumers(
             key,
             message: `Received kafka payload`,
           });
-          await sendDataToConsumer(consumers[topic], payload, traceparent);
+          const currentSpanContext = span.spanContext();
+          const currentSpanID = currentSpanContext.spanId;
+
+          // traceparent: {version}-{trace_id}-{span_id}-{trace_flags}
+          let newTraceparent = traceparent.split("-");
+          newTraceparent[2] = currentSpanID;
+          newTraceparent = newTraceparent.join("-");
+          await sendDataToConsumer(consumers[topic], payload, newTraceparent);
           console.log("✔️  Data Sent Successfully !!!");
           span.addEvent("log", {
             severity: "info",

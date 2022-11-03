@@ -2,14 +2,14 @@ configs:
   group_id: "order_service_consumers"
   consumers:
     - topic: productService.productCreated
-      listeners:
-        - host: order-service:8083
-          path: consume/product/created
+      listener:
+        host: order-service:8083
+        path: consume/product/created
     - topic: productService.productUpdated
-      listeners:
-        - host: order-service:8083
-          path: consume/product/updated
+      listener:
+        host: order-service:8083
+        path: consume/product/updated
     - topic: productService.productDeleted
-      listeners:
-        - host: order-service:8083
-          path: consume/product/deleted
+      listener:
+        host: order-service:8083
+        path: consume/product/deleted

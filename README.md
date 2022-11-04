@@ -28,7 +28,7 @@ syntax: {version}-{trace_id}-{span_id}-{trace_flags}
 
 **trace_flags** => 2 HEXDIGLC (8 bit flags.)
 
-> The current version of this specification (00) only supports a single flag called sampled.
+> The current version of this specification (00) only supports a single flag called sampled.\
 > `static final byte FLAG_SAMPLED = 1; // 00000001`
 
 Ex:

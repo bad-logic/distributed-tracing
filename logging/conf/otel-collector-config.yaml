@@ -7,6 +7,21 @@ receivers:
 processors:
   batch:
 
+  tail_sampling:
+    decision_wait: 1s
+    policies: [
+        {
+          name: error-only-policy,
+          type: status_code,
+          status_code: { status_codes: [ERROR] },
+        },
+        # {
+        #   name: randomized-policy,
+        #   type: probabilistic,
+        #   probabilistic: { sampling_percentage: 25 },
+        # },
+      ]
+
 exporters:
   zipkin:
     endpoint: "http://zipkin_service:9411/api/v2/spans"
@@ -16,8 +31,6 @@ exporters:
     endpoint: "jaeger_service:14250"
     tls:
       insecure: true
-
-  logging:
 
 extensions:
   health_check:
@@ -31,13 +44,10 @@ service:
     - health_check
   pipelines:
     traces:
-      receivers:
-        - otlp
-      processors:
-        - batch
-      exporters:
-        - zipkin
-        - jaeger
+      receivers: [otlp]
+      processors: [tail_sampling]
+      exporters: [zipkin, jaeger]
+
     # logs:
     #   receivers:
     #     - otlp

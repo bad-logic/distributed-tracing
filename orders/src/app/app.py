@@ -1,10 +1,14 @@
-from utils import SERVICE_NAME, Telemetry
-from .routes import order_router, consumer_router
-from db import DBConnector
-from fastapi import FastAPI, status, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
 from opentelemetry import trace
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 
+from fastapi import FastAPI, status, Request,  status as status_code
+from db import DBConnector
+from utils import Telemetry, TelemetryLogger, SERVICE_NAME, LogLevelEnum
+
+from .routes import order_router, consumer_router
 
 request_handler = FastAPI(title="Orders Service", debug=True)
 
@@ -47,6 +51,21 @@ async def set_opentelemetry_context(request: Request, call_next):
         parent.set_attribute("http.route", request.url.path)
         response = await call_next(request)
         return response
+
+
+@request_handler.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """
+        catches validation error thrown by pydantic models
+    """
+    current_span = trace.get_current_span()
+    TelemetryLogger().error(current_span, exc, LogLevelEnum.CRITICAL,
+                            f"response ended with {status_code.HTTP_422_UNPROCESSABLE_ENTITY} status code")
+
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content=jsonable_encoder({"detail": exc.errors()}),
+    )
 
 
 request_handler.include_router(order_router, prefix="/order")

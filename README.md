@@ -51,7 +51,7 @@ base16(trace-flags) = 00  // not sampled
 
 **_tracestate header_** (optional): includes the parent in a potentially vendor-specific format
 
-[Read more...](https://www.w3.org/TR/trace-context-1/)
+<a href="https://www.w3.org/TR/trace-context-1/" target="-blank">Read more...</a>
 
 ### How to run application !!!
 

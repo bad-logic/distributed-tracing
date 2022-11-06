@@ -102,6 +102,7 @@ export async function ListenToKafkaTopicsAndNotifyTheConsumers(
           let newTraceparent = traceparent.split("-");
           newTraceparent[2] = currentSpanID;
           newTraceparent = newTraceparent.join("-");
+          console.log({ traceparent, newTraceparent });
           await sendDataToConsumer(consumers[topic], payload, newTraceparent);
           console.log("✔️  Data Sent Successfully !!!");
           span.addEvent("log", {

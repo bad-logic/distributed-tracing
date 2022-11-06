@@ -10,7 +10,7 @@ Trace context is split into two individual propagation fields supporting interop
 
 **_traceparent header_** : represents the incoming request in a tracing system in a common format, understood by all vendors.
 
-syntax: {version}-{trace_id}-{span_id}-{trace_flags}
+Format: {version}-{trace_id}-{parent_id}-{trace_flags}
 
 **version** => 2 HEXDIGLC (Hexadecimal digits lowercase)
 
@@ -28,8 +28,12 @@ syntax: {version}-{trace_id}-{span_id}-{trace_flags}
 
 **trace_flags** => 2 HEXDIGLC (8 bit flags.)
 
-> The current version of this specification (00) only supports a single flag called sampled.\
-> `static final byte FLAG_SAMPLED = 1; // 00000001`
+> The current version of this specification (00) only supports a single flag called sampled.
+
+```
+static final byte FLAG_SAMPLED = 1; // 00000001
+boolean sampled = (traceFlags & FLAG_SAMPLED) == FLAG_SAMPLED;
+```
 
 Ex:
 

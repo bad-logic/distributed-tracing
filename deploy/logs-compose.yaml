@@ -48,4 +48,3 @@ services:
       # - fluentd_service
       - jaeger_service
       - zipkin_service
-    restart: on-failure

@@ -1,40 +1,53 @@
-for migration alembic is used
+## Order service
 
-go to the shell of your docker container
-go to /src folder
+##### fetch, create, update and delete Order
 
-poetry add <package_name>
-poetry remove <package_name>
+##### Consume product events from product service
 
-FOR MIGRATIONS
+#### TECH STACK
+
+- Language Python
+- Database Mysql
+- Package Manager Poetry
+- Migration tool Alembic
+
+MIGRATIONS SETUP
+
+Initialize migration setup
 
 ```
 alembic init <folder_name>
 ```
 
-this will generate the setup for migrations
-
-run
+Create migration files
 
 ```
 alembic revision -m "creating_the_order_table"
+```
+
+Autogenerate migration files from schema
+
+```
 alembic revision --autogenerate -m "creating_the_order_table"
 ```
 
-for auto generate please update the target_metadata array in migrations/env.py
+> for auto generate please update the target_metadata array in migrations/env.py
 
-this will generate a migration file inside alembic/versions/
+Run Migrations
 
-run
+> To run migration commands you need to be same folder as `alembic.ini` file
 
 ```
 alembic upgrade head
 ```
 
-to run the migrations
+Revert Migrations
 
 ```
 alembic downgrade -n
 ```
 
-to undo last n migrations
+Applications README
+[product microservice](../products/README.md)\
+[consumer node](../consumer-node/README.md)\
+[consumer cpp](../consumers/README.md)

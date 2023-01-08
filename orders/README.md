@@ -47,7 +47,7 @@ Revert Migrations
 alembic downgrade -n
 ```
 
-Applications README
+Applications README\
 [product microservice](../products/README.md)\
 [consumer node](../consumer-node/README.md)\
 [consumer cpp](../consumers/README.md)

@@ -1,4 +1,4 @@
-version: "3"
+version: '3'
 
 volumes:
   products_db:
@@ -47,9 +47,9 @@ services:
     image: mysql:8.0.30
     container_name: products-db-container
     command:
-      - "--character-set-server=utf8mb4"
-      - "--collation-server=utf8mb4_unicode_ci"
-      - "--skip-character-set-client-handshake"
+      - '--character-set-server=utf8mb4'
+      - '--collation-server=utf8mb4_unicode_ci'
+      - '--skip-character-set-client-handshake'
     networks:
       - shop_backend_network
     environment:
@@ -58,7 +58,7 @@ services:
       - MYSQL_USER=product
       - MYSQL_PASSWORD=products@20202
     ports:
-      - "3307:3306"
+      - '3307:3306'
     volumes:
       - products_db:/var/lib/mysql:delegated
 
@@ -94,9 +94,9 @@ services:
     image: mysql:8.0.30
     container_name: orders-db-container
     command:
-      - "--character-set-server=utf8mb4"
-      - "--collation-server=utf8mb4_unicode_ci"
-      - "--skip-character-set-client-handshake"
+      - '--character-set-server=utf8mb4'
+      - '--collation-server=utf8mb4_unicode_ci'
+      - '--skip-character-set-client-handshake'
     networks:
       - shop_backend_network
     environment:
@@ -105,12 +105,12 @@ services:
       - MYSQL_USER=order
       - MYSQL_PASSWORD=orders_20202
     ports:
-      - "3308:3306"
+      - '3308:3306'
     volumes:
       - orders_db:/var/lib/mysql:delegated
 
-  # consumer_service:
-  #   container_name: consumer-service-container
+  # consumer_service_cpp:
+  #   container_name: consumer-service-cpp-container
   #   image: consumer-service:v1.0.3
   #   build:
   #     context: ../consumers

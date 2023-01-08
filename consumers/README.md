@@ -1,38 +1,16 @@
-package manage conan
+## Consumer for kafka Events
 
-`https://docs.conan.io/en/latest/getting_started.html`
+#### TECH STACK
 
-package files
-conanfile.txt
+- Language C++
+- PackageManager [conan](https://docs.conan.io/en/latest/getting_started.html)
 
-Fresh setup
+### Intended working principle
 
-1. install dependencies
+- Run this service as a sidecar service for any service that needs to consume events from another service
+- Provide a list of Events to listen and api to hit while consuming those events. [here](./configs/routes.yaml)
 
-```
-conan install <path_to_conanfile>
-
-// in case of ERROR: Missing binary
-conan install <path_to_conanfile> --build=missing
-```
-
-2. build with cmake
-
-```
-cmake <path_to_cmakefile> -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release
-cmake --build <path_to_cmakefile>
-```
-
-3. executable file is emitted to `bin/` folder which can be executed as
-
-```
-./bin/<executable_file_name>
-```
-
-other times if you made changes to code then just run the following
-
-```
-cmake --build <path_to_cmakefile>
-```
-
-and run the executable file emitted in the `bin/` directory as `./bin/<executable_file_name>`
+Applications README
+[product microservice](../products/README.md)\
+[order microservice](../orders/README.md)\
+[consumer node](../consumer-node/README.md)

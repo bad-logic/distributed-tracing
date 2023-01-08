@@ -11,24 +11,24 @@ processors:
     decision_wait: 1s
     policies: [
         {
-          name: error-only-policy,
-          type: status_code,
-          status_code: { status_codes: [ERROR] },
+          name: randomized-policy,
+          type: probabilistic,
+          probabilistic: { sampling_percentage: 25 },
         },
         # {
-        #   name: randomized-policy,
-        #   type: probabilistic,
-        #   probabilistic: { sampling_percentage: 25 },
+        #   name: error-only-policy,
+        #   type: status_code,
+        #   status_code: { status_codes: [ERROR] },
         # },
       ]
 
 exporters:
   zipkin:
-    endpoint: "http://zipkin_service:9411/api/v2/spans"
+    endpoint: 'http://zipkin_service:9411/api/v2/spans'
     format: proto
 
   jaeger:
-    endpoint: "jaeger_service:14250"
+    endpoint: 'jaeger_service:14250'
     tls:
       insecure: true
 

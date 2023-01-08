@@ -71,10 +71,27 @@ Run application containers
 
 > docker-compose -f deploy/docker-compose.yaml up
 
-Please checkout service specific readme to run application
+OR
 
-[order microservice](./orders/README.md)\
-[product microservice](./products/README.md)\
-[order microservice](./orders/README.md)\
+Run with script
+
+```bash
+$ chmod +x run.sh
+$ ./run.sh
+```
+
+Running Migrations
+
+```bash
+$ chmod +x migrations.sh
+$ ./migrations.sh run
+```
+
+Running Applications
+[product microservice](./products/README.md) `localhost:8082/product`
+[order microservice](./orders/README.md) `localhost:8083/order/`
+[kafka ui](./deploy/kafka-compose.yaml#L52) `localhost:8080`
+[Zipkin](./deploy/logs-compose.yaml#L30) `localhost:9411`
+[Jaeger](./deploy/logs-compose.yaml#L22) `localhost:16686`
 [consumer node](./consumer-node/README.md)\
 [consumer cpp](./consumers/README.md)

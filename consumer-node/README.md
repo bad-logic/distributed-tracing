@@ -1,27 +1,16 @@
-### how the project was setup
+## Consumer for kafka Events
 
-### installing pnpm
+#### TECH STACK
 
-```
-npm i -g pnpm
-```
+- Language Javascript
+- Runtime NodeJS
 
-### initialise a nodejs project
+### Intended working principle
 
-```
-pnpm init
-```
+- Run this service as a sidecar service for any service that needs to consume events from another service
+- Provide a list of Events to listen and api to hit while consuming those events. [here](./configs/listeners.yaml)
 
-### add type="module" in package.json file to indicate it is esm modules
-
-### installing dependencies
-
-```
-pnpm install js-yaml
-```
-
-### installing dev dependencies
-
-```
-pnpm install js-yaml --save-dev
-```
+Applications README
+[product microservice](../products/README.md)\
+[order microservice](../orders/README.md)\
+[consumer cpp](../consumers/README.md)

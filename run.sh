@@ -36,12 +36,12 @@ start_app(){
 
 start_kafka &
 kafka_active=false
-while [ $kafka_active == false ];
+while [ $kafka_active = false ];
 do
     kafka_active=true
     for i in "${kf[@]}"
     do
-        if [ $kafka_active == true ];
+        if [ $kafka_active = true ];
         then
             kafka_active=$(docker container inspect -f '{{.State.Running}}' $i)
         fi
@@ -50,7 +50,7 @@ done
 echo "done with kafkas..."
 start_logs &
 logs_active=false
-while [ $logs_active == false ];
+while [ $logs_active = false ];
 do
     logs_active=true
     for i in "${lg[@]}"

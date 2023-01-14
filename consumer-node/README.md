@@ -4,7 +4,6 @@
 
 - Language Javascript
 - Runtime NodeJS
-- Package Manager pnpm
 
 ### Intended working principle
 

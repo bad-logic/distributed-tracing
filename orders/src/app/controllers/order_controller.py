@@ -35,7 +35,7 @@ class OrderController:
                 raise
             except Exception as ex:
                 self.otlp_logger.error(curr_span, ex, LogLevelEnum.CRITICAL,
-                                       f"response ended with {status_code.HTTP_500_INTERNAL_SERVER_ERROR} status code")
+                                       f"response ended with {status_code.HTTP_500_INTERNAL_SERVER_ERROR} status code, {ex}")
                 raise HTTPException(
                     status_code.HTTP_500_INTERNAL_SERVER_ERROR, "Failed to create order"
                 ) from ex
@@ -51,7 +51,7 @@ class OrderController:
                 return orders
             except Exception as ex:
                 self.otlp_logger.error(curr_span, ex, LogLevelEnum.CRITICAL,
-                                       f"response ended with {status_code.HTTP_500_INTERNAL_SERVER_ERROR} status code")
+                                       f"response ended with {status_code.HTTP_500_INTERNAL_SERVER_ERROR} status code, {ex}")
                 raise HTTPException(
                     status_code.HTTP_500_INTERNAL_SERVER_ERROR, "Failed to fetch orders"
                 ) from ex
@@ -68,7 +68,7 @@ class OrderController:
                 raise
             except Exception as ex:
                 self.otlp_logger.error(curr_span, ex, LogLevelEnum.CRITICAL,
-                                       f"response ended with {status_code.HTTP_500_INTERNAL_SERVER_ERROR} status code")
+                                       f"response ended with {status_code.HTTP_500_INTERNAL_SERVER_ERROR} status code, {ex}")
                 raise HTTPException(
                     status_code.HTTP_500_INTERNAL_SERVER_ERROR, "Failed to fetch order"
                 ) from ex
@@ -86,7 +86,7 @@ class OrderController:
                 raise
             except Exception as ex:
                 self.otlp_logger.error(curr_span, ex, LogLevelEnum.CRITICAL,
-                                       f"response ended with {status_code.HTTP_500_INTERNAL_SERVER_ERROR} status code")
+                                       f"response ended with {status_code.HTTP_500_INTERNAL_SERVER_ERROR} status code, {ex}")
                 raise HTTPException(
                     status_code.HTTP_500_INTERNAL_SERVER_ERROR, "Failed to update order address"
                 ) from ex
@@ -104,7 +104,7 @@ class OrderController:
                 raise
             except Exception as ex:
                 self.otlp_logger.error(curr_span, ex, LogLevelEnum.CRITICAL,
-                                       f"response ended with {status_code.HTTP_500_INTERNAL_SERVER_ERROR} status code")
+                                       f"response ended with {status_code.HTTP_500_INTERNAL_SERVER_ERROR} status code, {ex}")
                 raise HTTPException(
                     status_code.HTTP_500_INTERNAL_SERVER_ERROR, "Failed to update order products"
                 ) from ex
@@ -122,7 +122,7 @@ class OrderController:
                 raise
             except Exception as ex:
                 self.otlp_logger.error(curr_span, ex, LogLevelEnum.CRITICAL,
-                                       f"response ended with {status_code.HTTP_500_INTERNAL_SERVER_ERROR} status code")
+                                       f"response ended with {status_code.HTTP_500_INTERNAL_SERVER_ERROR} status code, {ex}")
                 raise HTTPException(
                     status_code.HTTP_500_INTERNAL_SERVER_ERROR, "Failed to update order status"
                 ) from ex
@@ -139,7 +139,7 @@ class OrderController:
                 raise
             except Exception as ex:
                 self.otlp_logger.error(curr_span, ex, LogLevelEnum.CRITICAL,
-                                       f"response ended with {status_code.HTTP_500_INTERNAL_SERVER_ERROR} status code")
+                                       f"response ended with {status_code.HTTP_500_INTERNAL_SERVER_ERROR} status code, {ex}")
                 raise HTTPException(
                     status_code.HTTP_500_INTERNAL_SERVER_ERROR, "Failed to delete order"
                 ) from ex

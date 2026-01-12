@@ -13,6 +13,7 @@ from db import DBConnector
 from utils import TelemetryLogger, SERVICE_NAME, LogLevelEnum
 from ..interfaces import CreateOrderInterface, GetOrderInterface, StatusEnum
 from ..models import OrderTable
+from ..models import ProductTable
 
 connector = DBConnector()
 connector.connect()
@@ -36,6 +37,15 @@ class OrderService:
             self.otlp_logger.log(curr_span,
                                  f"storing {order} in the database")
             with session_maker() as session:
+                for id in order.Product:
+                    product = session.query(ProductTable).filter(
+                                ProductTable.Id == id).first()
+                    if product is None:
+                        self.otlp_logger.error(curr_span, Exception(f"cannot create order one of product {order.Product} does not exist"), LogLevelEnum.INFO,
+                                                               f"response ended with {status_code.HTTP_404_NOT_FOUND} status code")
+                        raise HTTPException(
+                            status_code=status_code.HTTP_404_NOT_FOUND, detail=f"failed to create an order, one or many product(s) {order.Product} not found")
+
                 new_order = OrderTable(
                     User=order.User,
                     Product=order.Product,
@@ -77,7 +87,7 @@ class OrderService:
                 raise HTTPException(
                     status_code=status_code.HTTP_404_NOT_FOUND, detail=f"order with ID {order_id} not found")
             self.otlp_logger.log(curr_span,
-                                 "order fetched from database")
+                                 f"order fetched from database")
             return order
 
     def get_order(self, order_id: int) -> GetOrderInterface:
@@ -107,10 +117,19 @@ class OrderService:
         """ service to update the product of an order """
         with self.tracer.start_as_current_span("OrderService.update_order_product") as curr_span:
             with session_maker() as session:
+                for id in product:
+                    prod = session.query(ProductTable).filter(
+                                ProductTable.Id == id).first()
+                    if prod is None:
+                        self.otlp_logger.error(curr_span, Exception(f"cannot update order one of product {product} does not exist"), LogLevelEnum.INFO,
+                                                               f"response ended with {status_code.HTTP_404_NOT_FOUND} status code")
+                        raise HTTPException(
+                            status_code=status_code.HTTP_404_NOT_FOUND, detail=f"failed to update an order, one or many product(s) {product} not found")
+
                 order = self.get_order_model_object(order_id, session)
                 if (order.Status.value != StatusEnum.ORDER_PLACED.value):
                     raise HTTPException(
-                        status_code.HTTP_403_FORBIDDEN, detail=f"Cannot update product once order status is {order.status.value}"
+                        status_code.HTTP_403_FORBIDDEN, detail=f"Cannot update product once order status is {order.Status.value}"
                     )
                 order.Product = product
                 session.add(order)
@@ -127,7 +146,7 @@ class OrderService:
                 order = self.get_order_model_object(order_id, session)
                 if (order.Status.value != StatusEnum.ORDER_PLACED.value):
                     raise HTTPException(
-                        status_code.HTTP_403_FORBIDDEN, detail=f"Cannot update address once order status is {order.status.value}"
+                        status_code.HTTP_403_FORBIDDEN, detail=f"Cannot update address once order status is {order.Status.value}"
                     )
                 order.Address = address
                 session.add(order)
@@ -142,6 +161,10 @@ class OrderService:
         with self.tracer.start_as_current_span("OrderService.delete_order") as curr_span:
             with session_maker() as session:
                 order = self.get_order_model_object(order_id, session)
+                if (order.Status.value != StatusEnum.ORDER_PLACED.value):
+                    raise HTTPException(
+                        status_code.HTTP_403_FORBIDDEN, detail=f"Cannot delete order once order status is {order.Status.value}"
+                    )
                 session.delete(order)
                 session.commit()
             self.otlp_logger.log(curr_span,

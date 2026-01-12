@@ -25,6 +25,11 @@ class PatchOrderAddressInterface(BaseModel):
     """
     Address: str
 
+class PatchOrderProductInterface(BaseModel):
+    """
+    Represents a interface for updating order product
+    """
+    Product: List[int]
 
 class PatchOrderStatusInterface(BaseModel):
     """

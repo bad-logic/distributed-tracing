@@ -1,17 +1,13 @@
-version: '3'
-
 volumes:
   products_db:
   orders_db:
 
 networks:
-  shop_backend_network:
-    name: shop_backend_network
-  kafka_network:
-    name: kafka_network
+  product_backend_network:
+  order_backend_network:
+  dstrace_kafka_network:
     external: true
-  ext_log_network:
-    name: external_logs_network
+  dstrace_log_network:
     external: true
 
 services:
@@ -22,9 +18,9 @@ services:
       context: ../products
       dockerfile: Imagefile
     networks:
-      - shop_backend_network
-      - kafka_network
-      - ext_log_network
+      - product_backend_network
+      - dstrace_kafka_network
+      - dstrace_log_network
     environment:
       - PORT=8082
       - DB_HOST=db-products-service
@@ -34,14 +30,15 @@ services:
       - DB_PASSWORD=products@20202
       - DB_DIALECT=mysql
       - DB_LOGGING=1
-      - KAFKA_BROKERS=kafka1:9092
+      - KAFKA_BROKERS=kafka:9092
       - LOG_COLLECTOR_ENDPOINT=otel_collector_service:4317
     ports:
       - 8082:8082
     volumes:
       - ../products:/usr/app/:cached
     depends_on:
-      - db-products-service
+      db-products-service:
+          condition: service_healthy
 
   db-products-service:
     image: mysql:8.0.30
@@ -51,12 +48,21 @@ services:
       - '--collation-server=utf8mb4_unicode_ci'
       - '--skip-character-set-client-handshake'
     networks:
-      - shop_backend_network
+      - product_backend_network
     environment:
       - MYSQL_ROOT_PASSWORD=products2022
       - MYSQL_DATABASE=products
       - MYSQL_USER=product
       - MYSQL_PASSWORD=products@20202
+    healthcheck:
+      test: [
+        "CMD-SHELL",
+        "mysqladmin ping -h localhost -u$MYSQL_USER -p$MYSQL_PASSWORD"
+      ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
     ports:
       - '3307:3306'
     volumes:
@@ -69,9 +75,9 @@ services:
       context: ../orders
       dockerfile: Imagefile
     networks:
-      - shop_backend_network
-      - kafka_network
-      - ext_log_network
+      - order_backend_network
+      - dstrace_kafka_network
+      - dstrace_log_network
     environment:
       - PORT=8083
       - DB_HOST=db-orders-service
@@ -81,14 +87,15 @@ services:
       - DB_PASSWORD=orders_20202
       - DB_DIALECT=mysql
       - DB_LOGGING=1
-      - KAFKA_BROKERS=kafka1:9092
+      - KAFKA_BROKERS=kafka:9092
       - LOG_COLLECTOR_ENDPOINT=otel_collector_service:4317
     ports:
       - 8083:8083
     volumes:
       - ../orders/:/usr/app/
     depends_on:
-      - db-orders-service
+      db-orders-service:
+          condition: service_healthy
 
   db-orders-service:
     image: mysql:8.0.30
@@ -98,12 +105,21 @@ services:
       - '--collation-server=utf8mb4_unicode_ci'
       - '--skip-character-set-client-handshake'
     networks:
-      - shop_backend_network
+      - order_backend_network
     environment:
       - MYSQL_ROOT_PASSWORD=orders2022
       - MYSQL_DATABASE=orders
       - MYSQL_USER=order
       - MYSQL_PASSWORD=orders_20202
+    healthcheck:
+      test: [
+        "CMD-SHELL",
+        "mysqladmin ping -h localhost -u$MYSQL_USER -p$MYSQL_PASSWORD"
+      ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
     ports:
       - '3308:3306'
     volumes:
@@ -116,9 +132,9 @@ services:
   #     context: ../consumers
   #     dockerfile: Imagefile
   #   networks:
-  #     - shop_backend_network
-  #     - kafka_network
-  #     - ext_log_network
+  #     - order_backend_network
+  #     - dstrace_kafka_network
+  #     - dstrace_log_network
   #   environment:
   #     - KAFKA_BROKERS=kafka1:9092
   #     - LOG_COLLECTOR_ENDPOINT=otel_collector_service:4317
@@ -133,11 +149,11 @@ services:
       context: ../consumer-node
       dockerfile: Imagefile
     networks:
-      - shop_backend_network
-      - kafka_network
-      - ext_log_network
+      - order_backend_network
+      - dstrace_kafka_network
+      - dstrace_log_network
     environment:
-      - KAFKA_BROKERS=kafka1:9092
+      - KAFKA_BROKERS=kafka:9092
       - LOG_COLLECTOR_ENDPOINT=otel_collector_service:4317
       - SERVICE_NAME=order-consumer-sidecar-ms
     volumes:

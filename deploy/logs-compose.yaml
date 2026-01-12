@@ -1,11 +1,7 @@
-version: "3"
-
 networks:
-  ext_log_network:
-    name: external_logs_network
-    external: true
   int_log_network:
-    name: internal_logs_network
+  dstrace_log_network:
+    external: true
 
 services:
   # fluentd_service:
@@ -21,15 +17,15 @@ services:
 
   jaeger_service:
     image: jaegertracing/all-in-one:latest
-    container_name: jaeger-container
+    container_name: dstrace-jaeger-container
     networks:
       - int_log_network
     ports:
-      - 16686:16686
+      - "16686:16686"
 
   zipkin_service:
     image: openzipkin/zipkin:latest
-    container_name: zipkin-container
+    container_name: dstrace-zipkin-container
     networks:
       - int_log_network
     ports:
@@ -37,13 +33,13 @@ services:
 
   otel_collector_service:
     image: otel/opentelemetry-collector-contrib:0.56.0
-    container_name: otel-collector-container
+    container_name: dstrace-otel-collector-container
     command: ["--config=/etc/otel-collector-config.yaml"]
     networks:
       - int_log_network
-      - ext_log_network
+      - dstrace_log_network
     volumes:
-      - ../logging/conf/otel-collector-config.yaml:/etc/otel-collector-config.yaml:cached
+      - ./configs/otel-collector-config.yaml:/etc/otel-collector-config.yaml:cached
     depends_on:
       # - fluentd_service
       - jaeger_service

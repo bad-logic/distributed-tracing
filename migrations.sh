@@ -1,5 +1,11 @@
 #!/bin/bash
-
+################################################################
+#
+# Author: RB
+# Version 1
+# This script is used for creating mysql tables for orders service
+#
+################################################################
 
 usage() {
   cat << USAGE >&2

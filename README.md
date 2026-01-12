@@ -1,4 +1,56 @@
-#### DISTRIBUTED TRACING
+### How to run application !!!
+Setup Everything with one script
+```bash
+# run apps
+$ chmod +x run.sh
+$ ./run.sh
+# create tables in db
+$ chmod +x migrations.sh
+$ ./migrations.sh run
+```
+
+OR 
+Run each infrastructure manually 
+First run kafka
+
+> docker-compose -f deploy/kafka-compose.yaml up -d
+
+Second run logging containers
+
+> docker-compose -f deploy/logs-compose.yaml up -d
+
+Third run application containers
+
+> docker-compose -f deploy/docker-compose.yaml up
+
+Fourth run migration to create tables in database
+```bash
+$ chmod +x migrations.sh
+$ ./migrations.sh run
+```
+
+
+Running Applications\
+[product microservice](./products/README.md) `localhost:8082/products`\
+[order microservice](./orders/README.md) `localhost:8083/order/`\
+[kafka ui](./deploy/kafka-compose.yaml#L52) `localhost:8081`\
+[Zipkin](./deploy/logs-compose.yaml#L30) `localhost:9411`\
+[Jaeger](./deploy/logs-compose.yaml#L22) `localhost:16686`\
+[consumer node](./consumer-node/README.md)\
+[consumer cpp](./consumers/README.md)
+
+[Api Documentation](./api-doc.md)
+
+### Screenshots
+
+![Jaeger 1](./docs/assets/jaeger1.png)
+![Jaeger 2](./docs/assets/jaeger2.png)
+![Jaeger 3](./docs/assets/jaeger3.png)
+![kafka](./docs/assets/kafka-ui.png)
+![zipkin 1](./docs/assets/zipkin1.png)
+![zipkin 2](./docs/assets/zipkin2.png)
+
+## DISTRIBUTED TRACING
 
 In distributed systems, a single operation may traverse across multiple software components. each software components may produce traces/logs that are uniquely identifiable across the participating systems. so it is very difficult to correlate those traces/logs.
 
@@ -57,41 +109,4 @@ base16(trace-flags) = 00  // not sampled
 
 <a href="https://www.w3.org/TR/trace-context-1/" target="_blank">Read more...</a>
 
-### How to run application !!!
 
-First run kafka
-
-> docker-compose -f deploy/kafka-compose.yaml up -d
-
-Run logging containers
-
-> docker-compose -f deploy/logs-compose.yaml up -d
-
-Run application containers
-
-> docker-compose -f deploy/docker-compose.yaml up
-
-OR
-
-Run with script
-
-```bash
-$ chmod +x run.sh
-$ ./run.sh
-```
-
-Running Migrations
-
-```bash
-$ chmod +x migrations.sh
-$ ./migrations.sh run
-```
-
-Running Applications\
-[product microservice](./products/README.md) `localhost:8082/product`\
-[order microservice](./orders/README.md) `localhost:8083/order/`\
-[kafka ui](./deploy/kafka-compose.yaml#L52) `localhost:8080`\
-[Zipkin](./deploy/logs-compose.yaml#L30) `localhost:9411`\
-[Jaeger](./deploy/logs-compose.yaml#L22) `localhost:16686`\
-[consumer node](./consumer-node/README.md)\
-[consumer cpp](./consumers/README.md)

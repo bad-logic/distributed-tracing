@@ -1,16 +1,16 @@
-package telementaryUtils 
+package telementaryUtils
 
 import (
 	"context"
 	"fmt"
-	"os"
-	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
-	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
-	"go.opentelemetry.io/otel/sdk/trace"
-	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
-	"google.golang.org/grpc"
+	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
+	"go.opentelemetry.io/otel/sdk/resource"
+	"go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
+	"os"
+	//"google.golang.org/grpc"
 )
 
 const SERVICE_NAME = "product_ms"
@@ -31,7 +31,7 @@ func NewTelemetryCollectorExporter(ctx context.Context)(*otlptrace.Exporter,erro
 	client := otlptracegrpc.NewClient( 
 		otlptracegrpc.WithInsecure(),
         otlptracegrpc.WithEndpoint(os.Getenv("LOG_COLLECTOR_ENDPOINT")),
-        otlptracegrpc.WithDialOption(grpc.WithBlock()),
+        //otlptracegrpc.WithDialOption(grpc.WithBlock()), // this will block the app if connection is not established
     )
 	
 	exporter, err := otlptrace.New(ctx, client)

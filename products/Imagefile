@@ -1,25 +1,20 @@
-FROM golang:1.19-bullseye
+FROM golang:1.22-bullseye
 
-RUN go install github.com/cosmtrek/air@latest
-
-ENV GO111MODULE=on
-ENV CGO_ENABLED=0
-ENV GOOS=linux
-ENV GOARCH=amd64
+# for hot reloading development purpose only
+# uncomment for development only
+RUN go install github.com/air-verse/air@v1.52.3
 
 
 WORKDIR /usr/app
-
-COPY go.mod .
-
-COPY go.sum .
-
+COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
 
-ENTRYPOINT [ "air" ]
-# RUN go build -o main ./main.go
+# uncomment for development mode only
+CMD [ "air" ]
 
+# uncomment for running compiled go binary file
+# RUN go build -o main ./main.go
 # CMD ["./main"]
 

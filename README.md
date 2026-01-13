@@ -32,12 +32,12 @@ $ ./migrations.sh run
 > Run `bash test.sh` to send some logs/traces to signoz
 
 Running Applications\
-[product microservice](./products/README.md) -> <a href="localhost:8082/products" target="_blank">localhost:8082/products</a><br>
-[order microservice](./orders/README.md) -> <a href="localhost:8083/order/" target="_blank">localhost:8083/order/</a><br>
-[kafka ui](./deploy/kafka-compose.yaml#L40) -> <a href="localhost:8081" target="_blank">localhost:8081</a><br>
-[Signoz](./deploy/logs-compose.yaml#L150) -> <a href="localhost:8080" target="_blank">localhost:8080</a><br>
-[consumer node](./consumer-node/README.md)\
-[consumer cpp](./consumers/README.md)
+[<b>product microservice</b>](./products/README.md) -> <a href="http://localhost:8082/products" target="_blank">localhost:8082/products</a><br>
+[<b>order microservice</b>](./orders/README.md) -> <a href="http://localhost:8083/order/" target="_blank">localhost:8083/order/</a><br>
+[<b>kafka ui</b>](./deploy/kafka-compose.yaml#L40) -> <a href="http://localhost:8081" target="_blank">localhost:8081</a><br>
+[<b>Signoz</b>](./deploy/logs-compose.yaml#L150) -> <a href="http://localhost:8080" target="_blank">localhost:8080</a><br>
+[<b>consumer node</b>](./consumer-node/README.md)\
+[<b>consumer cpp</b>](./consumers/README.md)
 
 [Api Documentation](./api-doc.md)
 

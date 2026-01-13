@@ -2,12 +2,16 @@ networks:
   dstrace_kafka_network:
     external: true
 
+x-common: &common
+  networks:
+    - dstrace_kafka_network
+  restart: unless-stopped
+
 services:
   zookeeper:
+    !!merge <<: *common
     image: confluentinc/cp-zookeeper:7.6.1
     container_name: dstrace-zookeeper-container
-    networks:
-      - dstrace_kafka_network
     ports:
       - "2181:2181"
     environment:
@@ -15,11 +19,10 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
 
   kafka:
+    !!merge <<: *common
     image: confluentinc/cp-kafka:7.6.1
     hostname: kafka
     container_name: dstrace-kafka-container
-    networks:
-      - dstrace_kafka_network
     ports:
       - "9092:9092"
     environment:
@@ -35,12 +38,11 @@ services:
 
   # WEB UI for viewing kafka
   kafka-ui-service:
+    !!merge <<: *common
     container_name: dstrace-kafka-ui-container
     image: quay.io/cloudhut/kowl:v1.4.0
     volumes:
       - ./configs/kafka-config.yaml:/etc/kowl/config.yaml
-    networks:
-      - dstrace_kafka_network
     ports:
       - "8081:8080"
     entrypoint: ./kowl --config.filepath=/etc/kowl/config.yaml

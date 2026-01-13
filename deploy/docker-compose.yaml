@@ -1,6 +1,7 @@
 volumes:
   products_db:
   orders_db:
+  otel-collector-data:
 
 networks:
   product_backend_network:
@@ -158,3 +159,30 @@ services:
       - SERVICE_NAME=order-consumer-sidecar-ms
     volumes:
       - ../consumer-node/src:/usr/app/src
+
+  otel_collector_service:
+    image: signoz/signoz-otel-collector:v0.129.12
+    container_name: signoz-otel-collector
+    command:
+      - --config=/etc/otel-collector-config.yaml
+      - --copy-path=/var/tmp/collector-config.yaml
+      - --feature-gates=-pkg.translator.prometheus.NormalizeName
+#      - --manager-config=/etc/manager-config.yaml #opamp disabled
+    networks:
+      - dstrace_log_network
+    environment:
+      - OTEL_RESOURCE_ATTRIBUTES=host.name=signoz-host,os.type=linux
+      - LOW_CARDINAL_EXCEPTION_GROUPING=false
+    ports:
+      # - "1777:1777"     # pprof extension
+      - "4317:4317" # OTLP gRPC receiver
+      - "4318:4318" # OTLP HTTP receiver
+    volumes:
+      - ./configs/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+      - otel-collector-data:/var/lib/signoz-otel-collector
+#      - ./configs/signoz/opamp.yaml:/etc/manager-config.yaml
+    logging:
+      options:
+        max-size: 50m
+        max-file: "3"
+    restart: unless-stopped

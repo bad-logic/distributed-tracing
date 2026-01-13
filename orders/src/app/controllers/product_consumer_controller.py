@@ -61,7 +61,7 @@ class ProductConsumerController:
                 self.product_service.delete_product(
                     product_id=product.Id)
                 self.otlp_logger.log(curr_span,
-                                     f"product {product['Id']} updated successfully")
+                                     f"product {product.Id} deleted successfully")
                 return f"product {product.Id} deleted successfully"
             except HTTPException:
                 raise

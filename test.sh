@@ -13,64 +13,67 @@ if [ ! -x $(which curl)  ];then
 fi
 
 echo "creating products..."
-for i in `seq 1 30`;
+for i in `seq 1 230`;
 do
   curl -X POST -H "Content-Type: application/json" -d  "{\"name\": \"summer-collection\",\"price\": \"99.99\",\"userId\": \"$((i * 5))\"}" localhost:8082/product;
   printf "\n";
 done
 
 echo "get individual product"
-for i in `seq 1 45`;
+for i in `seq 1 145`;
 do
   curl -X GET localhost:8082/product/"$i";
   printf "\n";
 done
 
 echo "updating short description"
-for i in `seq 1 45`;
+for i in `seq 1 95`;
 do
   curl -X PUT -H "Content-Type: application/json" -d  "{\"ShortDesc\": \"this product is very comfortable\"}" localhost:8082/product/"$i";
   printf "\n";
 done
 
+curl -X GET localhost:8082/products;
+printf "\n";
+
 echo "get individual product after short description update"
-for i in `seq 1 45`;
+for i in `seq 1 95`;
 do
   curl -X GET localhost:8082/product/"$i";
   printf "\n";
 done
 
 echo "updating name"
-for i in `seq 25 45`;
+for i in `seq 25 85`;
 do
   curl -X PUT -H "Content-Type: application/json" -d  "{\"name\": \"winter-collection\"}" localhost:8082/product/"$i";
   printf "\n";
 done
 
 echo "updating price"
-for i in `seq 1 25`;
+for i in `seq 25 250`;
 do
   price="$((i * 5)).99"
   curl -X PUT -H "Content-Type: application/json" -d  "{\"price\": \"$price\"}" localhost:8082/product/"$i";
   printf "\n";
 done
 
+curl -X GET localhost:8082/products;
+printf "\n";
+
 echo "get individual product after name description update"
-for i in `seq 1 45`;
+for i in `seq 1 250`;
 do
   curl -X GET localhost:8082/product/"$i";
   printf "\n";
 done
 
-echo "getting products"
-for i in `seq 1 3`;
-do
-  curl -X GET localhost:8082/products;
-  printf "\n";
-done
+
+curl -X GET localhost:8082/products;
+printf "\n";
 
 echo "creating orders"
-for i in `seq 1 25`;
+for i in `seq 1 65`;
 do
   prod="[$((i + 1)), $((i + 3)) , $((i + 5))]"
   curl -X POST -H "Content-Type: application/json" -d  "{\"User\": $i,\"Product\": $prod,\"Address\": \"xyz\" }" localhost:8083/order/;

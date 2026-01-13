@@ -1,5 +1,5 @@
 ### How to run application !!!
-Setup Everything with one script
+Setup Everything with scripts
 ```bash
 # run apps
 $ chmod +x run.sh
@@ -29,13 +29,13 @@ $ chmod +x migrations.sh
 $ ./migrations.sh run
 ```
 
+> Run `bash test.sh` to send some logs/traces to signoz
 
 Running Applications\
-[product microservice](./products/README.md) `localhost:8082/products`\
-[order microservice](./orders/README.md) `localhost:8083/order/`\
-[kafka ui](./deploy/kafka-compose.yaml#L52) `localhost:8081`\
-[Zipkin](./deploy/logs-compose.yaml#L30) `localhost:9411`\
-[Jaeger](./deploy/logs-compose.yaml#L22) `localhost:16686`\
+[product microservice](./products/README.md) <a href="localhost:8082/products">`localhost:8082/products`</a> <br>
+[order microservice](./orders/README.md) <a href="localhost:8083/order/">`localhost:8083/order/`</a><br>
+[kafka ui](./deploy/kafka-compose.yaml#L40) <a href="localhost:8081">`localhost:8081`</a><br>
+[Signoz](./deploy/logs-compose.yaml#L150) <a href="localhost:8080">`localhost:8080`</a><br>
 [consumer node](./consumer-node/README.md)\
 [consumer cpp](./consumers/README.md)
 
@@ -43,12 +43,7 @@ Running Applications\
 
 ### Screenshots
 
-![Jaeger 1](./docs/assets/jaeger1.png)
-![Jaeger 2](./docs/assets/jaeger2.png)
-![Jaeger 3](./docs/assets/jaeger3.png)
-![kafka](./docs/assets/kafka-ui.png)
-![zipkin 1](./docs/assets/zipkin1.png)
-![zipkin 2](./docs/assets/zipkin2.png)
+![signoz](./docs/assets/signoz.png)
 
 ## DISTRIBUTED TRACING
 

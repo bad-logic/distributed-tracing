@@ -34,6 +34,18 @@ create_external_network(){
       done
 }
 
+delete_external_network(){
+  for i in "${external_networks[@]}"
+      do
+         if docker network ls | grep "$i"; then
+           docker network rm "$i"
+           echo "✔ $i deleted"
+        else
+          echo "network already exists"
+        fi
+      done
+}
+
 start_kafka(){
     docker compose -f deploy/kafka-compose.yaml up --build -d
     echo "✔ kafka infrastructure setup complete"
@@ -75,6 +87,7 @@ stop(){
   stop_app
   stop_logs
   stop_kafka
+  delete_external_network
   echo "✔ stopped the application"
 }
 
